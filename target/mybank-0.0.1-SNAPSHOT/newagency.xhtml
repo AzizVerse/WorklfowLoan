@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Créer une Agence - BTK Bank</title>
+    <h:outputStylesheet library="css" name="form.css"/>
+</h:head>
+
+<h:body>
+    <div class="form-container">
+        <h2>Créer une Nouvelle Agence</h2>
+
+        <h:form>
+            <!-- Success or error message -->
+            <h:panelGroup rendered="#{not empty agencyBean.creationMessage}">
+                <p style="color: green;">#{agencyBean.creationMessage}</p>
+            </h:panelGroup>
+
+            <!-- Code -->
+            <div class="form-group">
+                <h:outputLabel for="code" value="Code de l'agence:" />
+                <h:inputText id="code" value="#{agencyBean.code}" required="true" />
+            </div>
+
+            <!-- Name -->
+            <div class="form-group">
+                <h:outputLabel for="name" value="Nom de l'agence:" />
+                <h:inputText id="name" value="#{agencyBean.name}" required="true" />
+            </div>
+
+            <!-- Director -->
+            <div class="form-group">
+                <h:outputLabel for="director" value="Directeur d'agence:" />
+                <h:selectOneMenu id="director" value="#{agencyBean.directorId}" required="true">
+                    <f:selectItem itemLabel="-- Sélectionner --" itemValue="" />
+                    <f:selectItems value="#{agencyBean.availableDirectors}" var="director"
+                                   itemValue="#{director.id}"
+                                   itemLabel="#{director.firstName} #{director.lastName} (#{director.username})" />
+                </h:selectOneMenu>
+            </div>
+
+            <!-- Submit -->
+            <div class="form-group">
+                <h:commandButton value="Créer l'agence" action="#{agencyBean.createAgency}" />
+            </div>
+        </h:form>
+    </div>
+</h:body>
+</html>
