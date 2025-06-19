@@ -9,6 +9,7 @@ pipeline {
                     credentialsId: 'github-creds'
             }
         }
+
         stage('Package Java EE App') {
             steps {
                 echo 'Packaging Java EE project...'
@@ -23,7 +24,12 @@ pipeline {
             }
         }
 
-        
+        stage('Generate Java Code Coverage Report') {
+            steps {
+                echo 'Running JaCoCo Coverage...'
+                sh 'mvn jacoco:prepare-agent test jacoco:report'
+            }
+        }
 
         stage('Checkout Python ML API') {
             steps {
@@ -43,10 +49,24 @@ pipeline {
                         python3 -m pip install -r requirements.txt
                         python3 -m pip install flake8 pytest pytest-cov
                         python3 -m flake8 main.py loan.py test_main.py
-                        python3 -m pytest --cov=.
+                        python3 -m pytest --cov=. --cov-report=html
                     '''
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Archiving test results and coverage reports...'
+            // Archive Java test reports
+            junit '**/target/surefire-reports/*.xml'
+
+            // Archive Java coverage report (HTML)
+            archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
+
+            // Archive Python coverage report (HTML)
+            archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
         }
     }
 }
