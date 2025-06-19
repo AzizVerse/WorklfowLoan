@@ -1,11 +1,7 @@
-C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\model\AgencyAnalystHistor.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\service\AgencyService.java
-C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\service\AgencyAnalystHistoryService.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\model\Folder.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\controller\AgencyController.java
-C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\controller\LoginBean.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\controller\AssignController.java
-C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\controller\WorkflowController.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\controller\DashboardController.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\model\Department.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\controller\FolderController.java
@@ -27,7 +23,6 @@ C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\service\ClientProf
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\model\DemandeCredit.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\service\UserService.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\model\User.java
-C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\controller\LoanController.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\service\LoanApprovalPredictionService.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\model\Role.java
 C:\Users\HP\eclipse-workspace\mybank\src\main\java\com\mybank\controller\AlertController.java

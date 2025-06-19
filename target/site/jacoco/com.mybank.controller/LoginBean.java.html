@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginBean.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybank</a> &gt; <a href="index.source.html" class="el_package">com.mybank.controller</a> &gt; <span class="el_source">LoginBean.java</span></div><h1>LoginBean.java</h1><pre class="source lang-java linenums">package com.mybank.controller;
+
+import com.mybank.model.User;
+import com.mybank.service.UserService;
+
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import java.io.Serializable;
+
+@Named(&quot;loginBean&quot;)
+@SessionScoped
+<span class="nc" id="L13">public class LoginBean implements Serializable {</span>
+
+    private static final long serialVersionUID = 1L;
+
+    private String username;
+    private String password;
+
+    private User currentUser;
+
+    @Inject
+    private UserService userService;
+
+    public String login() {
+        // You can add authentication logic here
+<span class="nc" id="L27">        this.currentUser = userService.getUserByUsername(username);</span>
+
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        if (currentUser != null) {</span>
+<span class="nc" id="L30">            return &quot;myFolders.xhtml?faces-redirect=true&quot;;</span>
+        } else {
+<span class="nc" id="L32">            return &quot;login.xhtml&quot;; // or show an error message</span>
+        }
+    }
+
+    public User getCurrentUser() {
+<span class="nc" id="L37">        return currentUser;</span>
+    }
+
+    public void logout() {
+<span class="nc" id="L41">        currentUser = null;</span>
+<span class="nc" id="L42">        username = &quot;&quot;;</span>
+<span class="nc" id="L43">        password = &quot;&quot;;</span>
+<span class="nc" id="L44">    }</span>
+
+    // Getters and Setters
+<span class="nc" id="L47">    public String getUsername() { return username; }</span>
+<span class="nc" id="L48">    public void setUsername(String username) { this.username = username; }</span>
+
+<span class="nc" id="L50">    public String getPassword() { return password; }</span>
+<span class="nc" id="L51">    public void setPassword(String password) { this.password = password; }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

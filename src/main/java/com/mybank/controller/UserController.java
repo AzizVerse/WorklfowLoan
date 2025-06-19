@@ -1,7 +1,6 @@
 	package com.mybank.controller;
 	
 	import com.mybank.model.*;
-import com.mybank.service.AgencyAnalystHistoryService;
 import com.mybank.service.UserService;
 
 import jakarta.annotation.PostConstruct;
@@ -20,9 +19,14 @@ import jakarta.enterprise.context.SessionScoped;
 	
 	    @Inject
 	    private UserService userService;
+
+	    public void setUserService(UserService userService) {
+	        this.userService = userService;
+	    }
+
 	    
-	    @Inject
-	    private AgencyAnalystHistoryService agencyAnalystHistoryService;
+	    
+	    
 	
 	    private Long id;
 	    private String matricule;

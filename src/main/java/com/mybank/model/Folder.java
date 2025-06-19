@@ -86,6 +86,10 @@ public class Folder {
 
     // Getters and Setters
     public Long getId() { return id; }
+    public void setId(long id) {
+     this.id=id;
+		
+	}
 
     public String getReference() { return reference; }
     public void setReference(String reference) { this.reference = reference; }
@@ -176,6 +180,8 @@ public class Folder {
     public String getFormattedDate() {
         return createdDate != null ? createdDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
     }
+
+	
 
 
 

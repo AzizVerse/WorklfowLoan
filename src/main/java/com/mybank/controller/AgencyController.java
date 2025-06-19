@@ -1,10 +1,8 @@
 package com.mybank.controller;
 
 import com.mybank.model.Agency;
-import com.mybank.model.AgencyAnalystHistor;
 import com.mybank.model.Folder;
 import com.mybank.model.User;
-import com.mybank.service.AgencyAnalystHistoryService;
 import com.mybank.service.AgencyService;
 import com.mybank.service.FolderService;
 import com.mybank.service.UserService;
@@ -19,19 +17,31 @@ import java.util.List;
 @Named("agencyBean") // Match XHTML reference
 @SessionScoped
 public class AgencyController implements Serializable {
-    private static final long serialVersionUID = 1L;
+	 private static final long serialVersionUID = 1L;
 
-    @Inject
-    private AgencyService agencyService;
+	    @Inject
+	    private AgencyService agencyService;
 
-    @Inject
-    private UserService userService;
+	    @Inject
+	    private UserService userService;
+
+	    @Inject
+	    private FolderService folderService;
+
+	    // Setter Injection for testing
+	    public void setAgencyService(AgencyService agencyService) {
+	        this.agencyService = agencyService;
+	    }
+
+	    public void setUserService(UserService userService) {
+	        this.userService = userService;
+	    }
+
+	    public void setFolderService(FolderService folderService) {
+	        this.folderService = folderService;
+	    }
     
-    @Inject
-    private FolderService folderService;
     
-    @Inject
-    private AgencyAnalystHistoryService historyService;
 
     private String code;
     private String name;
@@ -40,7 +50,7 @@ public class AgencyController implements Serializable {
 
     private List<Agency> agencyList;
     private Agency selectedAgency;
-    private List<AgencyAnalystHistor> analystHistory;
+    
     private List<Folder> externalFolders = new ArrayList<>();
 
     public List<Folder> getExternalFolders() {
@@ -99,18 +109,9 @@ public class AgencyController implements Serializable {
         return agencyList;
     }
     
-    public void loadHistoryForAgency(Agency agency) {
-        this.selectedAgency = agency;
-        this.analystHistory = historyService.getHistoryByAgency(agency);
-    }
+    
 
-    public void restoreAnalyst(AgencyAnalystHistor histor) {
-        Agency agency = histor.getAgency();
-        User toRestore = histor.getNewAnalyst();
-        agency.setDefaultAnalyst(toRestore);
-        agencyService.updateAgency(agency);
-        loadHistoryForAgency(agency);
-    }
+    
     public Agency getSelectedAgency() {
         return selectedAgency;
     }
@@ -119,9 +120,7 @@ public class AgencyController implements Serializable {
         this.selectedAgency = selectedAgency;
     }
 
-    public List<AgencyAnalystHistor> getAnalystHistory() {
-        return analystHistory;
-    }
+    
     public long folderCountForAnalyst(User analyst) {
         if (analyst == null) return 0;
         return folderService.getFolderCountForAnalyst(analyst); // Already filtered by !TERMINE

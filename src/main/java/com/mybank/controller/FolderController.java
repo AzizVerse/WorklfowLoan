@@ -9,7 +9,6 @@ import com.mybank.model.FolderAction;
 import com.mybank.model.FolderNavigation;
 import com.mybank.model.Role;
 import com.mybank.model.User;
-import com.mybank.service.AgencyAnalystHistoryService;
 import com.mybank.service.AgencyService;
 import com.mybank.service.AlertService;
 import com.mybank.service.ClientProfileService;
@@ -39,32 +38,59 @@ public class FolderController implements Serializable {
 
     @Inject
     private FolderService folderService;
+    public void setFolderService(FolderService folderService) {
+        this.folderService = folderService;
+    }
 
     @Inject
     private UserService userService;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @Inject
     private UserController userController;
+    public void setUserController(UserController userController) {
+        this.userController = userController;
+    }
 
     @Inject
     private FolderActionService folderActionService;
+    public void setFolderActionService(FolderActionService folderActionService) {
+        this.folderActionService = folderActionService;
+    }
+
     @Inject
     private AlertService alertService;
-    
+    public void setAlertService(AlertService alertService) {
+        this.alertService = alertService;
+    }
+
     @Inject
     private AgencyService agencyService;
+    public void setAgencyService(AgencyService agencyService) {
+        this.agencyService = agencyService;
+    }
+
     
-    @Inject
-    private AgencyAnalystHistoryService agencyAnalystHistoryService;
-    
+
     @Inject
     private DemandeCreditService demandeCreditService;
-    
+    public void setDemandeCreditService(DemandeCreditService demandeCreditService) {
+        this.demandeCreditService = demandeCreditService;
+    }
+
     @Inject
     private ClientProfileService clientProfileService;
-    
+    public void setClientProfileService(ClientProfileService clientProfileService) {
+        this.clientProfileService = clientProfileService;
+    }
+
     @Inject
     private ClientProfileController clientProfileController;
+    public void setClientProfileController(ClientProfileController clientProfileController) {
+        this.clientProfileController = clientProfileController;
+    }
     
     
 

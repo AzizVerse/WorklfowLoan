@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimulationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybank</a> &gt; <a href="index.source.html" class="el_package">com.mybank.controller</a> &gt; <span class="el_source">SimulationController.java</span></div><h1>SimulationController.java</h1><pre class="source lang-java linenums">package com.mybank.controller;
+
+import com.mybank.model.ClientProfile;
+import com.mybank.model.DemandeCredit;
+import com.mybank.model.Folder;
+import com.mybank.service.ClientProfileService;
+import com.mybank.service.DemandeCreditService;
+import com.mybank.service.LoanApprovalPredictionService;
+
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import java.io.Serializable;
+
+@Named(&quot;simulationController&quot;)
+@SessionScoped
+<span class="fc" id="L17">public class SimulationController implements Serializable {</span>
+
+    private static final long serialVersionUID = 1L;
+
+    @Inject
+    private FolderController folderBean;
+
+    public void setFolderBean(FolderController folderBean) {
+<span class="fc" id="L25">        this.folderBean = folderBean;</span>
+<span class="fc" id="L26">    }</span>
+
+
+    @Inject
+    private DemandeCreditService demandeCreditService;
+    public void setDemandeCreditService(DemandeCreditService demandeCreditService) {
+<span class="fc" id="L32">        this.demandeCreditService = demandeCreditService;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Inject
+    private ClientProfileService clientProfileService;
+    public void setClientProfileService(ClientProfileService clientProfileService) {
+<span class="fc" id="L38">        this.clientProfileService = clientProfileService;</span>
+<span class="fc" id="L39">    }</span>
+
+    @Inject
+    private LoanApprovalPredictionService loanApprovalPredictionService;
+    public void setLoanApprovalPredictionService(LoanApprovalPredictionService loanApprovalPredictionService) {
+<span class="fc" id="L44">        this.loanApprovalPredictionService = loanApprovalPredictionService;</span>
+<span class="fc" id="L45">    }</span>
+
+    @Inject
+    private ClientProfileController clientProfileController;
+    public void setClientProfileController(ClientProfileController clientProfileController) {
+<span class="fc" id="L50">        this.clientProfileController = clientProfileController;</span>
+<span class="fc" id="L51">    }</span>
+    
+    private DemandeCredit simulatedResult;
+<span class="fc" id="L54">    private boolean loading = false;</span>
+
+    public void simulate() {
+<span class="fc" id="L57">        Folder folder = folderBean.getSelectedFolder();</span>
+<span class="fc" id="L58">        ClientProfile profile = clientProfileService.findByFolder(folder);</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (folder == null) return;</span>
+
+<span class="fc" id="L61">        loading = true;</span>
+
+<span class="fc" id="L63">        double montant = folder.getMontantDemande();</span>
+<span class="fc" id="L64">        int duree = folder.getDureeMois();</span>
+<span class="fc" id="L65">        double tauxAnnuel = folder.getTauxAnnuel();</span>
+<span class="fc" id="L66">        double revenuMensuel = folder.getRevenuMensuel();</span>
+
+<span class="fc" id="L68">        double tauxMensuel = tauxAnnuel / 12 / 100;</span>
+<span class="fc" id="L69">        double mensualite = (montant * tauxMensuel) / (1 - Math.pow(1 + tauxMensuel, -duree));</span>
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">        double paiementsExistants = (profile != null &amp;&amp; profile.getPaiementsMensuelsDette() != null)</span>
+<span class="pc" id="L71">        	    ? profile.getPaiementsMensuelsDette() : 0.0;</span>
+
+<span class="fc" id="L73">        	double tauxEndettementApres = ((paiementsExistants + mensualite) / revenuMensuel) * 100;</span>
+
+
+        // 🧮 Get ClientProfile for tauxEndettementAvant calculation
+        
+<span class="fc" id="L78">        double tauxEndettementAvant = 0.0;</span>
+
+<span class="pc bpc" id="L80" title="3 of 6 branches missed.">        if (profile != null &amp;&amp; profile.getPaiementsMensuelsDette() != null &amp;&amp; revenuMensuel != 0) {</span>
+<span class="fc" id="L81">            tauxEndettementAvant = (profile.getPaiementsMensuelsDette() / revenuMensuel) * 100;</span>
+        }
+
+<span class="fc" id="L84">        simulatedResult = new DemandeCredit();</span>
+<span class="fc" id="L85">        simulatedResult.setMensualiteEstimee(Math.round(mensualite * 100.0) / 100.0);</span>
+<span class="fc" id="L86">        simulatedResult.setTauxEndettement(Math.round(tauxEndettementApres * 100.0) / 100.0);</span>
+<span class="fc" id="L87">        simulatedResult.setTauxEndettementAvant(Math.round(tauxEndettementAvant * 100.0) / 100.0); // 🆕</span>
+<span class="fc" id="L88">        simulatedResult.setFolder(folder);</span>
+
+<span class="fc" id="L90">        loading = false;</span>
+<span class="fc" id="L91">    }</span>
+    public void resetSimulation() {
+<span class="nc" id="L93">        simulatedResult = null;</span>
+<span class="nc" id="L94">    }</span>
+
+    public String getEndettementAdvice() {
+<span class="nc bnc" id="L97" title="All 4 branches missed.">        if (simulatedResult == null || simulatedResult.getTauxEndettement() == null) {</span>
+<span class="nc" id="L98">            return &quot;&quot;;</span>
+        }
+
+<span class="nc" id="L101">        double taux = simulatedResult.getTauxEndettement();</span>
+
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (taux &lt;= 33) {</span>
+<span class="nc" id="L104">            return &quot;🟢 Endettement Sain (≤ 33%) : Situation stable pour un nouveau prêt.&quot;;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        } else if (taux &lt;= 40) {</span>
+<span class="nc" id="L106">            return &quot;🟡 Endettement Limite (33%-40%) : À analyser avec attention.&quot;;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        } else if (taux &lt;= 50) {</span>
+<span class="nc" id="L108">            return &quot;🟠 Endettement Élevé (40%-50%) : Risque important, garanties requises.&quot;;</span>
+        } else {
+<span class="nc" id="L110">            return &quot;🔴 Endettement Critique (&gt; 50%) : Demande difficilement acceptable.&quot;;</span>
+        }
+    }
+    public String getAdviceForFolderSimulation() {
+<span class="nc" id="L114">        DemandeCredit demande = getDemandeCreditBySelectedFolder();</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">        if (demande == null || demande.getTauxEndettement() == null) {</span>
+<span class="nc" id="L116">            return &quot;&quot;;</span>
+        }
+<span class="nc" id="L118">        double taux = demande.getTauxEndettement();</span>
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (taux &lt;= 33) {</span>
+<span class="nc" id="L121">            return &quot;🟢 Endettement Sain (≤ 33%) : Situation stable pour un nouveau prêt.&quot;;</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        } else if (taux &lt;= 40) {</span>
+<span class="nc" id="L123">            return &quot;🟡 Endettement Limite (33%-40%) : À analyser avec attention.&quot;;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        } else if (taux &lt;= 50) {</span>
+<span class="nc" id="L125">            return &quot;🟠 Endettement Élevé (40%-50%) : Risque important, garanties requises.&quot;;</span>
+        } else {
+<span class="nc" id="L127">            return &quot;🔴 Endettement Critique (&gt; 50%) : Demande difficilement acceptable.&quot;;</span>
+        }
+    }
+
+
+    public void saveSimulation() {
+<span class="nc" id="L133">        Folder selectedFolder = folderBean.getSelectedFolder();</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">        if (selectedFolder == null || simulatedResult == null) return;</span>
+
+<span class="nc" id="L136">        DemandeCredit existing = demandeCreditService.findByFolder(selectedFolder);</span>
+
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (existing == null) {</span>
+<span class="nc" id="L139">            DemandeCredit demande = new DemandeCredit();</span>
+<span class="nc" id="L140">            demande.setFolder(selectedFolder);</span>
+<span class="nc" id="L141">            demande.setMensualiteEstimee(simulatedResult.getMensualiteEstimee());</span>
+<span class="nc" id="L142">            demande.setTauxEndettement(simulatedResult.getTauxEndettement());</span>
+<span class="nc" id="L143">            demande.setTauxEndettementAvant(simulatedResult.getTauxEndettementAvant()); // 🆕</span>
+<span class="nc" id="L144">            demandeCreditService.save(demande);</span>
+<span class="nc" id="L145">        } else {</span>
+<span class="nc" id="L146">            existing.setMensualiteEstimee(simulatedResult.getMensualiteEstimee());</span>
+<span class="nc" id="L147">            existing.setTauxEndettement(simulatedResult.getTauxEndettement());</span>
+<span class="nc" id="L148">            existing.setTauxEndettementAvant(simulatedResult.getTauxEndettementAvant()); // 🆕</span>
+<span class="nc" id="L149">            demandeCreditService.update(existing);</span>
+        }
+
+<span class="nc" id="L152">        simulatedResult = null;</span>
+<span class="nc" id="L153">        folderBean.reloadSelectedFolder();</span>
+<span class="nc" id="L154">    }</span>
+
+    public DemandeCredit getDemandeCreditBySelectedFolder() {
+<span class="nc" id="L157">        Folder folder = folderBean.getSelectedFolder();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (folder == null) return null;</span>
+<span class="nc" id="L159">        return demandeCreditService.findByFolder(folder);</span>
+    }
+    
+    private boolean loanApproved;
+    private Double approvalProbability;
+    private Double predictedRiskScore;
+
+    public void checkLoanApproval() {
+<span class="nc" id="L167">        Folder folder = folderBean.getSelectedFolder();</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (folder == null) {</span>
+<span class="nc" id="L169">            this.loanApproved = false;</span>
+<span class="nc" id="L170">            this.approvalProbability = null;</span>
+<span class="nc" id="L171">            this.predictedRiskScore = null;</span>
+<span class="nc" id="L172">            return;</span>
+        }
+
+<span class="nc" id="L175">        ClientProfile profile = clientProfileService.findByFolder(folder);</span>
+<span class="nc" id="L176">        DemandeCredit demande = getDemandeCreditBySelectedFolder();</span>
+
+<span class="nc bnc" id="L178" title="All 4 branches missed.">        if (profile == null || demande == null) {</span>
+<span class="nc" id="L179">            this.loanApproved = false;</span>
+<span class="nc" id="L180">            this.approvalProbability = null;</span>
+<span class="nc" id="L181">            this.predictedRiskScore = null;</span>
+<span class="nc" id="L182">            return;</span>
+        }
+
+<span class="nc" id="L185">        LoanApprovalPredictionService.PredictionResult result = loanApprovalPredictionService.predictLoanApproval(</span>
+<span class="nc" id="L186">            profile.getAge(),</span>
+<span class="nc" id="L187">            profile.getScoreCredit(),</span>
+<span class="nc" id="L188">            profile.getStatutEmploi(),</span>
+<span class="nc" id="L189">            folder.getMontantDemande(),</span>
+<span class="nc" id="L190">            folder.getDureeMois(),</span>
+<span class="nc" id="L191">            profile.getStatutMatrimonial(),</span>
+<span class="nc" id="L192">            profile.getStatutPropriete(),</span>
+<span class="nc" id="L193">            folder.getRevenuMensuel(),</span>
+<span class="nc" id="L194">            demande.getTauxEndettement()/100,</span>
+<span class="nc" id="L195">            profile.getPrecedentsDefautsPret(),</span>
+<span class="nc" id="L196">            profile.getHistoriquePaiement(),</span>
+<span class="nc" id="L197">            profile.getHistoriqueFaillite(),</span>
+<span class="nc" id="L198">            demande.getMensualiteEstimee(),</span>
+<span class="nc" id="L199">            profile.getPaiementsMensuelsDette(),</span>
+<span class="nc" id="L200">            profile.getValeurNette(),</span>
+<span class="nc" id="L201">            folder.getTauxAnnuel()/100</span>
+        );
+
+<span class="nc" id="L204">        this.loanApproved = result.isLoanApproved();</span>
+<span class="nc" id="L205">        this.approvalProbability = result.getApprovalProbability();</span>
+<span class="nc" id="L206">        this.predictedRiskScore = result.getRiskScore();</span>
+        
+<span class="nc" id="L208">        profile.setPretApprouve(loanApproved);</span>
+<span class="nc" id="L209">        profile.setScoreRisque(predictedRiskScore);</span>
+<span class="nc" id="L210">        profile.setProbabiliteApprobation(String.format(&quot;%.2f&quot;, approvalProbability));</span>
+<span class="nc" id="L211">        clientProfileService.update(profile);</span>
+<span class="nc" id="L212">        clientProfileController.loadProfile();</span>
+<span class="nc" id="L213">    }</span>
+
+    public boolean getLoanApproved() {
+<span class="nc" id="L216">        return loanApproved;</span>
+    }
+
+    public Double getApprovalProbability() {
+<span class="nc" id="L220">        return approvalProbability;</span>
+    }
+
+    public Double getPredictedRiskScore() {
+<span class="nc" id="L224">        return predictedRiskScore;</span>
+    }
+
+    
+
+    // Getters &amp; Setters
+<span class="fc" id="L230">    public DemandeCredit getSimulatedResult() { return simulatedResult; }</span>
+<span class="nc" id="L231">    public void setSimulatedResult(DemandeCredit simulatedResult) { this.simulatedResult = simulatedResult; }</span>
+<span class="nc" id="L232">    public boolean isLoading() { return loading; }</span>
+<span class="nc" id="L233">    public void setLoading(boolean loading) { this.loading = loading; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

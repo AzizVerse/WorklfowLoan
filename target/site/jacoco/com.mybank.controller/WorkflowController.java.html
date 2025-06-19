@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WorkflowController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybank</a> &gt; <a href="index.source.html" class="el_package">com.mybank.controller</a> &gt; <span class="el_source">WorkflowController.java</span></div><h1>WorkflowController.java</h1><pre class="source lang-java linenums">package com.mybank.controller;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Named;
+
+@Named
+@ViewScoped
+<span class="nc" id="L16">public class WorkflowController implements Serializable {</span>
+
+    private List&lt;Folder&gt; folders;
+    private Folder selectedFolder;
+    private List&lt;Step&gt; steps;
+    private List&lt;ActionLog&gt; actions;
+<span class="nc" id="L22">    private int selectedStepIndex = 0;</span>
+
+    @PostConstruct
+    public void init() {
+<span class="nc" id="L26">        folders = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L27">        folders.add(new Folder(&quot;REF001&quot;, &quot;Ali Ben Salah&quot;, new Date()));</span>
+<span class="nc" id="L28">        folders.add(new Folder(&quot;REF002&quot;, &quot;Salma Trabelsi&quot;, new Date()));</span>
+
+        // Initialize with the first folder as default
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        if (!folders.isEmpty()) {</span>
+<span class="nc" id="L32">            selectFolder(folders.get(0));</span>
+        }
+<span class="nc" id="L34">    }</span>
+    public int getSelectedStepIndex() {
+<span class="nc" id="L36">        return selectedStepIndex;</span>
+    }
+    public void setSelectedStepIndex(int selectedStepIndex) {
+<span class="nc" id="L39">        this.selectedStepIndex = selectedStepIndex;</span>
+<span class="nc" id="L40">    }</span>
+
+    public void selectFolder(Folder folder) {
+<span class="nc" id="L43">        this.selectedFolder = folder;</span>
+
+        // Simulate dynamic loading of steps and actions per folder
+<span class="nc" id="L46">        steps = List.of(</span>
+<span class="nc" id="L47">                new Step(&quot;Charger_Agence&quot;, &quot;Ahmed&quot;, new Date(), &quot;Initial creation&quot;),</span>
+<span class="nc" id="L48">                new Step(&quot;Directeur_Agence&quot;, &quot;Imen&quot;, new Date(), &quot;All docs validated&quot;),</span>
+<span class="nc" id="L49">                new Step(&quot;Analyse_Risk&quot;, &quot;Khaled&quot;, new Date(), &quot;Credit score OK&quot;),</span>
+<span class="nc" id="L50">                new Step(&quot;Engagement&quot;, &quot;Noura&quot;, new Date(), &quot;Approval granted&quot;),</span>
+<span class="nc" id="L51">                new Step(&quot;Cic&quot;, &quot;Samir&quot;, new Date(), &quot;Loan disbursed&quot;)</span>
+        );
+
+<span class="nc" id="L54">        actions = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L55">        actions.add(new ActionLog(&quot;Ahmed&quot;, &quot;Folder Created&quot;, new Date(), &quot;Basic info provided&quot;));</span>
+<span class="nc" id="L56">        actions.add(new ActionLog(&quot;Imen&quot;, &quot;Review Completed&quot;, new Date(), &quot;Reviewed documents&quot;));</span>
+<span class="nc" id="L57">        actions.add(new ActionLog(&quot;Khaled&quot;, &quot;Verification Passed&quot;, new Date(), &quot;Risk analysis OK&quot;));</span>
+
+<span class="nc" id="L59">        FacesContext.getCurrentInstance().addMessage(null,</span>
+<span class="nc" id="L60">                new FacesMessage(FacesMessage.SEVERITY_INFO,</span>
+<span class="nc" id="L61">                        &quot;Dossier sélectionné : &quot; + folder.getRef(), &quot;&quot;));</span>
+<span class="nc" id="L62">    }</span>
+
+    public void selectStep(int index) {
+<span class="nc" id="L65">        selectedStepIndex = index;</span>
+<span class="nc" id="L66">    }</span>
+
+    // Getters &amp; Setters
+
+    public List&lt;Folder&gt; getFolders() {
+<span class="nc" id="L71">        return folders;</span>
+    }
+
+    public Folder getSelectedFolder() {
+<span class="nc" id="L75">        return selectedFolder;</span>
+    }
+
+    public List&lt;Step&gt; getSteps() {
+<span class="nc" id="L79">        return steps;</span>
+    }
+
+    public Step getSelectedStep() {
+<span class="nc bnc" id="L83" title="All 4 branches missed.">        if (steps != null &amp;&amp; !steps.isEmpty()) {</span>
+<span class="nc" id="L84">            return steps.get(selectedStepIndex);</span>
+        }
+<span class="nc" id="L86">        return new Step(&quot;Aucune étape sélectionnée&quot;, &quot;&quot;, null, &quot;&quot;);</span>
+    }
+
+    public List&lt;ActionLog&gt; getActions() {
+<span class="nc" id="L90">        return actions;</span>
+    }
+
+    // Inner classes
+    public static class Folder {
+        private String ref;
+        private String clientName;
+        private Date date;
+
+<span class="nc" id="L99">        public Folder(String ref, String clientName, Date date) {</span>
+<span class="nc" id="L100">            this.ref = ref;</span>
+<span class="nc" id="L101">            this.clientName = clientName;</span>
+<span class="nc" id="L102">            this.date = date;</span>
+<span class="nc" id="L103">        }</span>
+
+        public String getRef() {
+<span class="nc" id="L106">            return ref;</span>
+        }
+
+        public String getClientName() {
+<span class="nc" id="L110">            return clientName;</span>
+        }
+
+        public Date getDate() {
+<span class="nc" id="L114">            return date;</span>
+        }
+    }
+
+    public static class Step {
+        private String name;
+        private String user;
+        private Date date;
+        private String comments;
+
+<span class="nc" id="L124">        public Step(String name, String user, Date date, String comments) {</span>
+<span class="nc" id="L125">            this.name = name;</span>
+<span class="nc" id="L126">            this.user = user;</span>
+<span class="nc" id="L127">            this.date = date;</span>
+<span class="nc" id="L128">            this.comments = comments;</span>
+<span class="nc" id="L129">        }</span>
+
+        public String getName() {
+<span class="nc" id="L132">            return name;</span>
+        }
+
+        public String getUser() {
+<span class="nc" id="L136">            return user;</span>
+        }
+
+        public Date getDate() {
+<span class="nc" id="L140">            return date;</span>
+        }
+
+        public String getComments() {
+<span class="nc" id="L144">            return comments;</span>
+        }
+    }
+
+    public static class ActionLog {
+        private String user;
+        private String actionType;
+        private Date date;
+        private String notes;
+
+<span class="nc" id="L154">        public ActionLog(String user, String actionType, Date date, String notes) {</span>
+<span class="nc" id="L155">            this.user = user;</span>
+<span class="nc" id="L156">            this.actionType = actionType;</span>
+<span class="nc" id="L157">            this.date = date;</span>
+<span class="nc" id="L158">            this.notes = notes;</span>
+<span class="nc" id="L159">        }</span>
+
+        public String getUser() {
+<span class="nc" id="L162">            return user;</span>
+        }
+
+        public String getActionType() {
+<span class="nc" id="L166">            return actionType;</span>
+        }
+
+        public Date getDate() {
+<span class="nc" id="L170">            return date;</span>
+        }
+
+        public String getNotes() {
+<span class="nc" id="L174">            return notes;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

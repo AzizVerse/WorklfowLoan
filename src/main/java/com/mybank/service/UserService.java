@@ -84,7 +84,7 @@ public class UserService {
         return em.createQuery("SELECT u FROM User u", User.class).getResultList();
     }
 
-    private String hashPassword(String password) {
+    public String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = md.digest(password.getBytes());

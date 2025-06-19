@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Folder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybank</a> &gt; <a href="index.source.html" class="el_package">com.mybank.model</a> &gt; <span class="el_source">Folder.java</span></div><h1>Folder.java</h1><pre class="source lang-java linenums">package com.mybank.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+@Entity
+@Table(name = &quot;folders&quot;)
+public class Folder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = &quot;reference&quot;, nullable = false, unique = true)
+    private String reference;
+
+    @Column(name = &quot;description&quot;)
+    private String description;
+    
+    @Column(name = &quot;client&quot;)
+    private String client;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;navigation&quot;, nullable = false)
+    private FolderNavigation navigation;
+
+    @Column(name = &quot;created_date&quot;, nullable = false)
+    private LocalDate createdDate;
+
+    @Column(name = &quot;last_updated&quot;)
+    private LocalDate lastUpdated;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = &quot;created_by&quot;, nullable = false)
+    private User createdBy;
+    
+    @ManyToOne
+    @JoinColumn(name = &quot;assigned_to_id&quot;)
+    private User assignedTo;
+    
+    @ManyToOne
+    @JoinColumn(name = &quot;assigned_Suc_id&quot;)
+    private User assignedSuc;
+    
+    @ManyToOne
+    @JoinColumn(name = &quot;assigned_CIC_id&quot;)
+    private User assignedCIC;
+    
+ // === 🚀 Nouveaux champs pour la simulation de crédit ===
+    @Column(name = &quot;revenu_mensuel&quot;)
+    private Double revenuMensuel;
+
+    @Column(name = &quot;montant_demande&quot;)
+    private Double montantDemande;
+
+    @Column(name = &quot;duree_mois&quot;)
+    private Integer dureeMois;
+
+    @Column(name = &quot;taux_annuel&quot;)
+    private Double tauxAnnuel;
+
+    // List of comments/actions by users on this folder
+    @OneToMany(mappedBy = &quot;folder&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List&lt;FolderAction&gt; actions;
+    
+    @OneToMany(mappedBy = &quot;folder&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List&lt;AgencyDocument&gt; agencyDocuments;
+    
+    @OneToOne(mappedBy = &quot;folder&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
+    private DemandeCredit demandeCredit;
+
+
+
+<span class="fc" id="L76">    public Folder() {</span>
+<span class="fc" id="L77">        this.createdDate = LocalDate.now();</span>
+<span class="fc" id="L78">        this.lastUpdated = LocalDate.now();</span>
+<span class="fc" id="L79">        this.navigation = FolderNavigation.CREE_PAR_CHARGE;</span>
+<span class="fc" id="L80">    }</span>
+
+    @PreUpdate
+    public void onUpdate() {
+<span class="nc" id="L84">        this.lastUpdated = LocalDate.now();</span>
+<span class="nc" id="L85">    }</span>
+
+    // Getters and Setters
+<span class="fc" id="L88">    public Long getId() { return id; }</span>
+    public void setId(long id) {
+<span class="fc" id="L90">     this.id=id;</span>
+		
+<span class="fc" id="L92">	}</span>
+
+<span class="fc" id="L94">    public String getReference() { return reference; }</span>
+<span class="fc" id="L95">    public void setReference(String reference) { this.reference = reference; }</span>
+
+<span class="nc" id="L97">    public String getDescription() { return description; }</span>
+<span class="nc" id="L98">    public void setDescription(String description) { this.description = description; }</span>
+
+<span class="nc" id="L100">    public FolderNavigation getNavigation() { return navigation; }</span>
+<span class="fc" id="L101">    public void setNavigation(FolderNavigation navigation) { this.navigation = navigation; }</span>
+
+<span class="nc" id="L103">    public LocalDate getCreatedDate() { return createdDate; }</span>
+<span class="fc" id="L104">    public void setCreatedDate(LocalDate createdDate) { this.createdDate = createdDate; }</span>
+
+<span class="nc" id="L106">    public LocalDate getLastUpdated() { return lastUpdated; }</span>
+<span class="nc" id="L107">    public void setLastUpdated(LocalDate lastUpdated) { this.lastUpdated = lastUpdated; }</span>
+
+<span class="fc" id="L109">    public User getCreatedBy() { return createdBy; }</span>
+<span class="fc" id="L110">    public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }</span>
+
+<span class="nc" id="L112">    public List&lt;FolderAction&gt; getActions() { return actions; }</span>
+<span class="nc" id="L113">    public void setActions(List&lt;FolderAction&gt; actions) { this.actions = actions; }</span>
+
+<span class="nc" id="L115">	public String getClient() {return client;}</span>
+<span class="nc" id="L116">    public void setClient(String client) {this.client=client;}</span>
+    
+<span class="fc" id="L118">    public Double getRevenuMensuel() { return revenuMensuel; }</span>
+<span class="fc" id="L119">    public void setRevenuMensuel(Double revenuMensuel) { this.revenuMensuel = revenuMensuel; }</span>
+
+<span class="fc" id="L121">    public Double getMontantDemande() { return montantDemande; }</span>
+<span class="fc" id="L122">    public void setMontantDemande(Double montantDemande) { this.montantDemande = montantDemande; }</span>
+
+<span class="fc" id="L124">    public Integer getDureeMois() { return dureeMois; }</span>
+<span class="fc" id="L125">    public void setDureeMois(Integer dureeMois) { this.dureeMois = dureeMois; }</span>
+
+<span class="fc" id="L127">    public Double getTauxAnnuel() { return tauxAnnuel; }</span>
+<span class="fc" id="L128">    public void setTauxAnnuel(Double tauxAnnuel) { this.tauxAnnuel = tauxAnnuel; }</span>
+    
+    public List&lt;AgencyDocument&gt; getAgencyDocuments() {
+<span class="nc" id="L131">        return agencyDocuments;</span>
+    }
+
+    public void setAgencyDocuments(List&lt;AgencyDocument&gt; agencyDocuments) {
+<span class="nc" id="L135">        this.agencyDocuments = agencyDocuments;</span>
+<span class="nc" id="L136">    }</span>
+    
+    public DemandeCredit getDemandeCredit() {
+<span class="nc" id="L139">        return demandeCredit;</span>
+    }
+
+    public void setDemandeCredit(DemandeCredit demandeCredit) {
+<span class="nc" id="L143">        this.demandeCredit = demandeCredit;</span>
+<span class="nc" id="L144">    }</span>
+    public User getAssignedSuc() {
+<span class="nc" id="L146">        return assignedSuc;</span>
+    }
+
+    public void setAssignedSuc(User assignedSuc) {
+<span class="fc" id="L150">        this.assignedSuc = assignedSuc;</span>
+<span class="fc" id="L151">    }</span>
+    
+    public User getAssignedCIC() {
+<span class="nc" id="L154">        return assignedCIC;</span>
+    }
+
+    public void setAssignedCIC(User assignedCIC) {
+<span class="nc" id="L158">        this.assignedCIC = assignedCIC;</span>
+<span class="nc" id="L159">    }</span>
+    
+    public User getAssignedTo() {
+<span class="fc" id="L162">        return assignedTo;</span>
+    }
+
+    public void setAssignedTo(User assignedTo) {
+<span class="fc" id="L166">        this.assignedTo = assignedTo;</span>
+<span class="fc" id="L167">    }</span>
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (!(o instanceof Folder)) return false;</span>
+<span class="nc" id="L172">        Folder that = (Folder) o;</span>
+<span class="nc bnc" id="L173" title="All 4 branches missed.">        return id != null &amp;&amp; id.equals(that.getId());</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L178">        return 31;</span>
+    }
+    public String getFormattedDate() {
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        return createdDate != null ? createdDate.format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd&quot;)) : &quot;&quot;;</span>
+    }
+
+	
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

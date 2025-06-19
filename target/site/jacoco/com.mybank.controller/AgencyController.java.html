@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AgencyController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybank</a> &gt; <a href="index.source.html" class="el_package">com.mybank.controller</a> &gt; <span class="el_source">AgencyController.java</span></div><h1>AgencyController.java</h1><pre class="source lang-java linenums">package com.mybank.controller;
+
+import com.mybank.model.Agency;
+import com.mybank.model.Folder;
+import com.mybank.model.User;
+import com.mybank.service.AgencyService;
+import com.mybank.service.FolderService;
+import com.mybank.service.UserService;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+@Named(&quot;agencyBean&quot;) // Match XHTML reference
+@SessionScoped
+<span class="fc" id="L19">public class AgencyController implements Serializable {</span>
+	 private static final long serialVersionUID = 1L;
+
+	    @Inject
+	    private AgencyService agencyService;
+
+	    @Inject
+	    private UserService userService;
+
+	    @Inject
+	    private FolderService folderService;
+
+	    // Setter Injection for testing
+	    public void setAgencyService(AgencyService agencyService) {
+<span class="fc" id="L33">	        this.agencyService = agencyService;</span>
+<span class="fc" id="L34">	    }</span>
+
+	    public void setUserService(UserService userService) {
+<span class="fc" id="L37">	        this.userService = userService;</span>
+<span class="fc" id="L38">	    }</span>
+
+	    public void setFolderService(FolderService folderService) {
+<span class="fc" id="L41">	        this.folderService = folderService;</span>
+<span class="fc" id="L42">	    }</span>
+    
+    
+
+    private String code;
+    private String name;
+    private Long directorId;
+    private String creationMessage;
+
+    private List&lt;Agency&gt; agencyList;
+    private Agency selectedAgency;
+    
+<span class="fc" id="L54">    private List&lt;Folder&gt; externalFolders = new ArrayList&lt;&gt;();</span>
+
+    public List&lt;Folder&gt; getExternalFolders() {
+<span class="nc" id="L57">        return externalFolders;</span>
+    }
+
+
+    @PostConstruct
+    public void init() {
+<span class="fc" id="L63">        agencyList = agencyService.findAllAgencies();</span>
+<span class="fc" id="L64">    }</span>
+
+    public String createAgency() {
+<span class="fc" id="L67">        User director = userService.findById(directorId);</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (director == null) {</span>
+<span class="fc" id="L69">            creationMessage = &quot;Directeur introuvable.&quot;;</span>
+<span class="fc" id="L70">            return null;</span>
+        }
+
+        // Check if this director is already assigned
+<span class="fc" id="L74">        boolean isAlreadyDirector = agencyList.stream()</span>
+<span class="pc bnc" id="L75" title="All 4 branches missed.">                .anyMatch(a -&gt; a.getDirector() != null &amp;&amp; a.getDirector().getId().equals(directorId));</span>
+
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (isAlreadyDirector) {</span>
+<span class="nc" id="L78">            creationMessage = &quot;Ce directeur est déjà affecté à une agence.&quot;;</span>
+<span class="nc" id="L79">            return null;</span>
+        }
+
+<span class="fc" id="L82">        Agency agency = new Agency(code, name, director);</span>
+<span class="fc" id="L83">        agencyService.createAgency(agency);</span>
+<span class="fc" id="L84">        creationMessage = &quot;Agence créée avec succès.&quot;;</span>
+<span class="fc" id="L85">        clearForm();</span>
+<span class="fc" id="L86">        agencyList = agencyService.findAllAgencies(); // refresh list</span>
+<span class="fc" id="L87">        return null;</span>
+    }
+
+    private void clearForm() {
+<span class="fc" id="L91">        code = &quot;&quot;;</span>
+<span class="fc" id="L92">        name = &quot;&quot;;</span>
+<span class="fc" id="L93">        directorId = null;</span>
+<span class="fc" id="L94">    }</span>
+
+    public List&lt;User&gt; getAvailableDirectors() {
+<span class="fc" id="L97">        List&lt;User&gt; allDirectors = userService.findUsersByRole(&quot;DIRECTEUR_AGENCE&quot;);</span>
+        // filter out already-assigned ones
+<span class="fc" id="L99">        return allDirectors.stream()</span>
+<span class="fc" id="L100">                .filter(director -&gt; agencyList.stream()</span>
+<span class="pc bpc" id="L101" title="1 of 4 branches missed.">                        .noneMatch(a -&gt; a.getDirector() != null &amp;&amp; a.getDirector().getId().equals(director.getId())))</span>
+<span class="fc" id="L102">                .toList();</span>
+    }
+
+    public List&lt;Agency&gt; getAllAgencies() {
+<span class="nc" id="L106">        return agencyList;</span>
+    }
+    public List&lt;Agency&gt; getAgencies() {
+<span class="nc" id="L109">        return agencyList;</span>
+    }
+    
+    
+
+    
+    public Agency getSelectedAgency() {
+<span class="nc" id="L116">        return selectedAgency;</span>
+    }
+
+    public void setSelectedAgency(Agency selectedAgency) {
+<span class="nc" id="L120">        this.selectedAgency = selectedAgency;</span>
+<span class="nc" id="L121">    }</span>
+
+    
+    public long folderCountForAnalyst(User analyst) {
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (analyst == null) return 0;</span>
+<span class="nc" id="L126">        return folderService.getFolderCountForAnalyst(analyst); // Already filtered by !TERMINE</span>
+    }
+    public long folderCountForCICAnalyst(User cicAnalyst) {
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (cicAnalyst == null) return 0;</span>
+<span class="nc" id="L130">        return folderService.getFolderCountForCICAnalyst(cicAnalyst); // à implémenter dans service</span>
+    }
+    public long externalFolderCountForCIC(User cicAnalyst, Agency agency) {
+<span class="nc bnc" id="L133" title="All 4 branches missed.">        if (cicAnalyst == null || agency == null) return 0;</span>
+<span class="nc" id="L134">        return folderService.countExternalCICFolders(cicAnalyst, agency); // à implémenter dans service</span>
+    }
+    public void loadExternalCICOrigins(User cicAnalyst, Agency agency) {
+<span class="nc" id="L137">        originAgencyNames = folderService.getOriginAgencyNamesForCIC(cicAnalyst, agency);</span>
+<span class="nc" id="L138">        externalFolders = folderService.getExternalFoldersForCICAnalyst(cicAnalyst, agency);</span>
+<span class="nc" id="L139">    }</span>
+
+
+    public long externalFolderCount(User analyst, Agency agency) {
+<span class="nc bnc" id="L143" title="All 4 branches missed.">        if (analyst == null || agency == null) return 0;</span>
+<span class="nc" id="L144">        return folderService.countFoldersFromOtherAgencies(analyst, agency); // Already filtered by !TERMINE</span>
+    }
+
+<span class="fc" id="L147">    private List&lt;String&gt; originAgencyNames = new ArrayList&lt;&gt;();</span>
+
+    public void loadExternalOrigins(User analyst, Agency agency) {
+<span class="nc" id="L150">        originAgencyNames = folderService.getOriginAgencyNamesForExternalFolders(analyst, agency);</span>
+<span class="nc" id="L151">        externalFolders = folderService.getExternalFoldersForAnalyst(analyst, agency);</span>
+<span class="nc" id="L152">    }</span>
+
+    public List&lt;String&gt; getOriginAgencyNames() {
+<span class="nc" id="L155">        return originAgencyNames;</span>
+    }
+    public List&lt;Folder&gt; getExternalFoldersForAnalyst(User analyst, Agency agency) {
+<span class="nc bnc" id="L158" title="All 4 branches missed.">        if (analyst == null || agency == null) return List.of();</span>
+<span class="nc" id="L159">        return folderService.getExternalFoldersForAnalyst(analyst, agency);</span>
+    }
+
+
+    // Getters and Setters
+<span class="nc" id="L164">    public String getCode() { return code; }</span>
+<span class="fc" id="L165">    public void setCode(String code) { this.code = code; }</span>
+
+<span class="nc" id="L167">    public String getName() { return name; }</span>
+<span class="fc" id="L168">    public void setName(String name) { this.name = name; }</span>
+
+<span class="nc" id="L170">    public Long getDirectorId() { return directorId; }</span>
+<span class="fc" id="L171">    public void setDirectorId(Long directorId) { this.directorId = directorId; }</span>
+
+<span class="fc" id="L173">    public String getCreationMessage() { return creationMessage; }</span>
+<span class="nc" id="L174">    public void setCreationMessage(String creationMessage) { this.creationMessage = creationMessage; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

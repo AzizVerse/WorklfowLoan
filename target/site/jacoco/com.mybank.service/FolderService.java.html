@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FolderService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybank</a> &gt; <a href="index.source.html" class="el_package">com.mybank.service</a> &gt; <span class="el_source">FolderService.java</span></div><h1>FolderService.java</h1><pre class="source lang-java linenums">package com.mybank.service;
+
+import com.mybank.model.Agency;
+import com.mybank.model.Department;
+import com.mybank.model.Folder;
+import com.mybank.model.FolderNavigation;
+import com.mybank.model.Role;
+import com.mybank.model.User;
+
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+import java.util.List;
+
+@Stateless
+<span class="fc" id="L17">public class FolderService {</span>
+
+    @PersistenceContext(unitName = &quot;mybankPU&quot;)
+    private EntityManager em;
+
+    public void createFolder(Folder folder) {
+<span class="fc" id="L23">        em.persist(folder);</span>
+<span class="fc" id="L24">    }</span>
+
+    public Folder findByReference(String reference) {
+        try {
+<span class="fc" id="L28">            return em.createQuery(&quot;SELECT f FROM Folder f WHERE f.reference = :ref&quot;, Folder.class)</span>
+<span class="fc" id="L29">                     .setParameter(&quot;ref&quot;, reference)</span>
+<span class="fc" id="L30">                     .getSingleResult();</span>
+<span class="nc" id="L31">        } catch (Exception e) {</span>
+<span class="nc" id="L32">            return null;</span>
+        }
+    }
+
+    public List&lt;Folder&gt; getFoldersByUser(User user) {
+<span class="fc" id="L37">        System.out.println(&quot;📥 Querying folders for user ID: &quot; + user.getId());</span>
+<span class="fc" id="L38">        return em.createQuery(&quot;SELECT f FROM Folder f WHERE f.createdBy.id = :userId&quot;, Folder.class)</span>
+<span class="fc" id="L39">                 .setParameter(&quot;userId&quot;, user.getId())</span>
+<span class="fc" id="L40">                 .getResultList();</span>
+    }
+    public void updateFolder(Folder folder) {
+<span class="fc" id="L43">        System.out.println(&quot;🔁 Updating folder: &quot; + folder.getReference());</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        System.out.println(&quot;✅ Assigned to: &quot; + (folder.getAssignedTo() != null ? folder.getAssignedTo().getUsername() : &quot;null&quot;));</span>
+
+<span class="fc" id="L46">        em.merge(folder);</span>
+<span class="fc" id="L47">    }</span>
+
+    public List&lt;Folder&gt; getFoldersForDirector(User director) {
+<span class="nc" id="L50">        return em.createQuery(</span>
+            &quot;SELECT f FROM Folder f WHERE f.createdBy.agency.director = :director AND f.navigation != :termine&quot;, Folder.class)
+<span class="nc" id="L52">            .setParameter(&quot;director&quot;, director)</span>
+<span class="nc" id="L53">            .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L54">            .getResultList();</span>
+    }
+    
+    public Folder findById(Long id) {
+<span class="nc" id="L58">        return em.find(Folder.class, id);</span>
+    }
+    
+ // ✅ NEW: Get all folders assigned to a specific analyst
+    public List&lt;Folder&gt; getFoldersAssignedToUser(User analyst) {
+<span class="nc" id="L63">        return em.createQuery(</span>
+            &quot;SELECT f FROM Folder f WHERE f.assignedTo = :analyst&quot;, Folder.class)
+<span class="nc" id="L65">            .setParameter(&quot;analyst&quot;, analyst)</span>
+<span class="nc" id="L66">            .getResultList();</span>
+    }
+
+    // ✅ NEW: Assign a folder to an analyst
+    public void assignFolderToAnalyst(Folder folder, User analyst) {
+<span class="nc" id="L71">        folder.setAssignedTo(analyst);</span>
+<span class="nc" id="L72">        em.merge(folder);</span>
+<span class="nc" id="L73">    }</span>
+    
+    
+    public List&lt;Folder&gt; getFoldersAssignedToAnalyst(User analyst) {
+<span class="nc" id="L77">        return em.createQuery(&quot;SELECT f FROM Folder f WHERE f.assignedTo = :analyst AND f.navigation != :termine &quot;, Folder.class)</span>
+<span class="nc" id="L78">                 .setParameter(&quot;analyst&quot;, analyst)</span>
+<span class="nc" id="L79">                 .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L80">                 .getResultList();</span>
+    }
+
+    public List&lt;Folder&gt; getAllFoldersAssignedToAnalysts() {
+<span class="nc" id="L84">    	return em.createQuery(</span>
+    		    &quot;SELECT f FROM Folder f WHERE f.assignedTo IS NOT NULL AND f.assignedTo.role = :role AND f.assignedTo.department = :dep AND f.navigation != :termine &quot;, Folder.class)
+<span class="nc" id="L86">    		    .setParameter(&quot;role&quot;, Role.Analyste)</span>
+<span class="nc" id="L87">    		    .setParameter(&quot;dep&quot;, Department.ENG)</span>
+<span class="nc" id="L88">    		    .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L89">    		    .getResultList();</span>
+
+    }
+    public List&lt;Folder&gt; getAllFoldersAssignedToCICAnalysts() {
+<span class="nc" id="L93">    	return em.createQuery(</span>
+    		    &quot;SELECT f FROM Folder f WHERE f.assignedCIC IS NOT NULL AND f.assignedCIC.role = :role AND f.assignedCIC.department = :dep AND f.navigation != :termine &quot;, Folder.class)
+<span class="nc" id="L95">    		    .setParameter(&quot;role&quot;, Role.Analyste_CIC)</span>
+<span class="nc" id="L96">    		    .setParameter(&quot;dep&quot;, Department.CIC)</span>
+<span class="nc" id="L97">    		    .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L98">    		    .getResultList();</span>
+
+    }
+    
+    public List&lt;Folder&gt; getAllFolders() {
+<span class="nc" id="L103">        return em.createQuery(&quot;SELECT f FROM Folder f&quot;, Folder.class).getResultList();</span>
+    }
+    
+    public long getFolderCountForAnalyst(User analyst) {
+<span class="fc" id="L107">        return em.createQuery(</span>
+            &quot;SELECT COUNT(f) FROM Folder f WHERE f.assignedTo = :analyst AND f.navigation != :termine&quot;, Long.class)
+<span class="fc" id="L109">            .setParameter(&quot;analyst&quot;, analyst)</span>
+<span class="fc" id="L110">            .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="fc" id="L111">            .getSingleResult();</span>
+    }
+    public long getFolderCountForCICAnalyst(User cicAnalyst) {
+<span class="nc" id="L114">        return em.createQuery(&quot;SELECT COUNT(f) FROM Folder f WHERE f.assignedCIC = :user AND f.navigation != 'TERMINE'&quot;, Long.class)</span>
+<span class="nc" id="L115">                 .setParameter(&quot;user&quot;, cicAnalyst)</span>
+<span class="nc" id="L116">                 .getSingleResult();</span>
+    }
+    public long countExternalCICFolders(User cicAnalyst, Agency agency) {
+<span class="nc" id="L119">        return em.createQuery(&quot;SELECT COUNT(f) FROM Folder f WHERE f.assignedCIC = :user AND f.createdBy.agency != :agency AND f.navigation != 'TERMINE'&quot;, Long.class)</span>
+<span class="nc" id="L120">                 .setParameter(&quot;user&quot;, cicAnalyst)</span>
+<span class="nc" id="L121">                 .setParameter(&quot;agency&quot;, agency)</span>
+<span class="nc" id="L122">                 .getSingleResult();</span>
+    }
+    public List&lt;String&gt; getOriginAgencyNamesForCIC(User cicAnalyst, Agency agency) {
+<span class="fc" id="L125">        return em.createQuery(&quot;SELECT DISTINCT f.createdBy.agency.name FROM Folder f WHERE f.assignedCIC = :user AND f.createdBy.agency != :agency&quot;, String.class)</span>
+<span class="fc" id="L126">                 .setParameter(&quot;user&quot;, cicAnalyst)</span>
+<span class="fc" id="L127">                 .setParameter(&quot;agency&quot;, agency)</span>
+<span class="fc" id="L128">                 .getResultList();</span>
+    }
+    public List&lt;Folder&gt; getExternalFoldersForCICAnalyst(User cicAnalyst, Agency agency) {
+<span class="nc" id="L131">        return em.createQuery(&quot;SELECT f FROM Folder f WHERE f.assignedCIC = :user AND f.createdBy.agency != :agency AND f.navigation != 'TERMINE'&quot;, Folder.class)</span>
+<span class="nc" id="L132">                 .setParameter(&quot;user&quot;, cicAnalyst)</span>
+<span class="nc" id="L133">                 .setParameter(&quot;agency&quot;, agency)</span>
+<span class="nc" id="L134">                 .getResultList();</span>
+    }
+
+
+
+    public long countFoldersFromOtherAgencies(User analyst, Agency agency) {
+<span class="nc" id="L140">        return em.createQuery(</span>
+            &quot;SELECT COUNT(f) FROM Folder f WHERE f.assignedTo = :analyst AND f.createdBy.agency != :agency AND f.navigation != :termine&quot;, Long.class)
+<span class="nc" id="L142">            .setParameter(&quot;analyst&quot;, analyst)</span>
+<span class="nc" id="L143">            .setParameter(&quot;agency&quot;, agency)</span>
+<span class="nc" id="L144">            .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L145">            .getSingleResult();</span>
+    }
+    public List&lt;String&gt; getOriginAgencyNamesForExternalFolders(User analyst, Agency agency) {
+<span class="nc" id="L148">        return em.createQuery(</span>
+            &quot;SELECT DISTINCT f.createdBy.agency.name FROM Folder f &quot; +
+            &quot;WHERE f.assignedTo = :analyst AND f.createdBy.agency != :agency AND f.navigation != :termine&quot;, String.class)
+<span class="nc" id="L151">            .setParameter(&quot;analyst&quot;, analyst)</span>
+<span class="nc" id="L152">            .setParameter(&quot;agency&quot;, agency)</span>
+<span class="nc" id="L153">            .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L154">            .getResultList();</span>
+    }
+    public List&lt;Folder&gt; getExternalFoldersForAnalyst(User analyst, Agency agency) {
+<span class="nc" id="L157">        return em.createQuery(</span>
+            &quot;SELECT f FROM Folder f WHERE f.assignedTo = :analyst AND f.createdBy.agency != :agency AND f.navigation != :termine&quot;, Folder.class)
+<span class="nc" id="L159">            .setParameter(&quot;analyst&quot;, analyst)</span>
+<span class="nc" id="L160">            .setParameter(&quot;agency&quot;, agency)</span>
+<span class="nc" id="L161">            .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L162">            .getResultList();</span>
+    }
+    
+    
+    public List&lt;Folder&gt; getFoldersAssignedToSuccursale(User succursale) {
+<span class="nc" id="L167">        return em.createQuery(&quot;SELECT f FROM Folder f WHERE f.assignedSuc = :succ AND f.navigation != :termine&quot;, Folder.class)</span>
+<span class="nc" id="L168">                 .setParameter(&quot;succ&quot;, succursale)</span>
+<span class="nc" id="L169">                 .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L170">                 .getResultList();</span>
+    }
+    
+    
+    
+
+    public List&lt;Folder&gt; getFoldersAssignedToCICAnalyst(User analyst) {
+<span class="nc" id="L177">        return em.createQuery(&quot;SELECT f FROM Folder f WHERE f.assignedCIC = :cicanalyst AND f.navigation != :termine &quot;, Folder.class)</span>
+<span class="nc" id="L178">                 .setParameter(&quot;cicanalyst&quot;, analyst)</span>
+<span class="nc" id="L179">                 .setParameter(&quot;termine&quot;, FolderNavigation.TERMINE)</span>
+<span class="nc" id="L180">                 .getResultList();</span>
+    }
+
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

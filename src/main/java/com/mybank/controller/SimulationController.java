@@ -21,23 +21,41 @@ public class SimulationController implements Serializable {
     @Inject
     private FolderController folderBean;
 
-    @Inject
-    private DemandeCreditService demandeCreditService;
+    public void setFolderBean(FolderController folderBean) {
+        this.folderBean = folderBean;
+    }
+
 
     @Inject
-    private ClientProfileService clientProfileService; // 🆕 Inject ClientProfileService
-    
+    private DemandeCreditService demandeCreditService;
+    public void setDemandeCreditService(DemandeCreditService demandeCreditService) {
+        this.demandeCreditService = demandeCreditService;
+    }
+
+    @Inject
+    private ClientProfileService clientProfileService;
+    public void setClientProfileService(ClientProfileService clientProfileService) {
+        this.clientProfileService = clientProfileService;
+    }
+
     @Inject
     private LoanApprovalPredictionService loanApprovalPredictionService;
-    
+    public void setLoanApprovalPredictionService(LoanApprovalPredictionService loanApprovalPredictionService) {
+        this.loanApprovalPredictionService = loanApprovalPredictionService;
+    }
+
     @Inject
     private ClientProfileController clientProfileController;
+    public void setClientProfileController(ClientProfileController clientProfileController) {
+        this.clientProfileController = clientProfileController;
+    }
     
     private DemandeCredit simulatedResult;
     private boolean loading = false;
 
     public void simulate() {
         Folder folder = folderBean.getSelectedFolder();
+        ClientProfile profile = clientProfileService.findByFolder(folder);
         if (folder == null) return;
 
         loading = true;
@@ -49,10 +67,14 @@ public class SimulationController implements Serializable {
 
         double tauxMensuel = tauxAnnuel / 12 / 100;
         double mensualite = (montant * tauxMensuel) / (1 - Math.pow(1 + tauxMensuel, -duree));
-        double tauxEndettementApres = ((mensualite) / revenuMensuel) * 100;
+        double paiementsExistants = (profile != null && profile.getPaiementsMensuelsDette() != null)
+        	    ? profile.getPaiementsMensuelsDette() : 0.0;
+
+        	double tauxEndettementApres = ((paiementsExistants + mensualite) / revenuMensuel) * 100;
+
 
         // 🧮 Get ClientProfile for tauxEndettementAvant calculation
-        ClientProfile profile = clientProfileService.findByFolder(folder);
+        
         double tauxEndettementAvant = 0.0;
 
         if (profile != null && profile.getPaiementsMensuelsDette() != null && revenuMensuel != 0) {
