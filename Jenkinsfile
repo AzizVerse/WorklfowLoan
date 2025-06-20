@@ -2,48 +2,20 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token') // Add your SonarCloud token in Jenkins credentials
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
-        stage('Checkout Java EE') {
+
+        stage('Checkout Repos') {
             steps {
+                echo 'Cloning Java EE Backend and Python API...'
+                // Clone Java backend
                 git branch: 'main',
                     url: 'https://github.com/AzizVerse/WorklfowLoan.git',
                     credentialsId: 'github-creds'
-            }
-        }
 
-        stage('SonarCloud Analysis') {
-            steps {
-                echo 'Running SonarCloud analysis...'
-                sh 'mvn verify sonar:sonar -Dsonar.projectKey=AzizVerse_WorklfowLoan -Dsonar.organization=azizverse -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN'
-            }
-        }
-
-        stage('Package Java EE App') {
-            steps {
-                echo 'Packaging Java EE project...'
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Mockito Unit Tests') {
-            steps {
-                echo 'Running Java Unit Tests with Mockito...'
-                sh 'mvn test'
-            }
-        }
-
-        stage('Generate Java Code Coverage Report') {
-            steps {
-                echo 'Running JaCoCo Coverage...'
-                sh 'mvn jacoco:prepare-agent test jacoco:report'
-            }
-        }
-
-        stage('Checkout Python ML API') {
-            steps {
+                // Clone Python ML API in subdirectory
                 dir('loan-ml-api') {
                     git branch: 'main',
                         url: 'https://github.com/AzizVerse/loan-ml-api.git',
@@ -52,9 +24,29 @@ pipeline {
             }
         }
 
-        stage('Run Python Tests & Linting') {
+        stage('Java Analysis & Tests') {
+            steps {
+                echo 'Running Java build, tests, static analysis, and code coverage...'
+                sh '''
+                    mvn clean verify \
+                        checkstyle:checkstyle \
+                        pmd:pmd \
+                        jacoco:prepare-agent \
+                        test \
+                        jacoco:report \
+                        sonar:sonar \
+                        -Dsonar.projectKey=AzizVerse_WorklfowLoan \
+                        -Dsonar.organization=azizverse \
+                        -Dsonar.host.url=https://sonarcloud.io \
+                        -Dsonar.login=$SONAR_TOKEN
+                '''
+            }
+        }
+
+        stage('Python Lint & Tests') {
             steps {
                 dir('loan-ml-api') {
+                    echo 'Installing dependencies & running Python linting + tests...'
                     sh '''
                         python3 -m pip install --upgrade pip
                         python3 -m pip install -r requirements.txt
@@ -69,9 +61,15 @@ pipeline {
 
     post {
         always {
-            echo 'Archiving test results and coverage reports...'
+            echo 'Archiving reports and results...'
+
+            // Java reports
             junit '**/target/surefire-reports/*.xml'
             archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
+
+            // Python reports
             archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
         }
     }
