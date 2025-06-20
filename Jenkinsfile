@@ -1,12 +1,23 @@
 pipeline {
     agent any
 
+    environment {
+        SONAR_TOKEN = credentials('sonar-token') // Add your SonarCloud token in Jenkins credentials
+    }
+
     stages {
         stage('Checkout Java EE') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/AzizVerse/WorklfowLoan.git',
                     credentialsId: 'github-creds'
+            }
+        }
+
+        stage('SonarCloud Analysis') {
+            steps {
+                echo 'Running SonarCloud analysis...'
+                sh 'mvn verify sonar:sonar -Dsonar.projectKey=AzizVerse_WorklfowLoan -Dsonar.organization=azizverse -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN'
             }
         }
 
@@ -20,7 +31,7 @@ pipeline {
         stage('Mockito Unit Tests') {
             steps {
                 echo 'Running Java Unit Tests with Mockito...'
-                sh 'mvn clean test'
+                sh 'mvn test'
             }
         }
 
@@ -59,13 +70,8 @@ pipeline {
     post {
         always {
             echo 'Archiving test results and coverage reports...'
-            // Archive Java test reports
             junit '**/target/surefire-reports/*.xml'
-
-            // Archive Java coverage report (HTML)
             archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
-
-            // Archive Python coverage report (HTML)
             archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
         }
     }
