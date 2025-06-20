@@ -74,13 +74,10 @@ public class AlertControllerTest {
     @Test
     void testMarkAlertsAsRead() {
         when(userController.getCurrentUser()).thenReturn(user);
-        List<Alert> unread = List.of(new Alert());
-        when(alertService.getUnreadAlertsForUser(user)).thenReturn(unread);
 
         controller.markAlertsAsRead();
 
         verify(alertService).markAllAsRead(user);
-        verify(alertService).getUnreadAlertsForUser(user);
     }
 
     @Test

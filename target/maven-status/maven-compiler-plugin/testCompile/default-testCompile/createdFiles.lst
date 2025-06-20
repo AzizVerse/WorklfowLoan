@@ -1,0 +1,17 @@
+mybank\controller\FolderControllerTest.class
+mybank\service\AgencyServiceTest.class
+mybank\service\AgencyDocumentServiceTest.class
+mybank\service\FolderActionServiceTest.class
+mybank\service\UserServiceTest.class
+mybank\controller\SimulationControllerTest.class
+mybank\controller\AlertControllerTest.class
+mybank\controller\DashboardControllerTest.class
+mybank\service\DemandeCreditServiceTest.class
+mybank\service\LoanApprovalPredictionServiceTest.class
+mybank\controller\AgencyControllerTest.class
+mybank\service\FolderServiceTest.class
+mybank\service\AlertServiceTest.class
+mybank\service\ClientProfileServiceTest.class
+mybank\controller\AgencyDocumentControllerTest.class
+mybank\controller\UserControllerTest.class
+mybank\controller\ClientProfileControllerTest.class

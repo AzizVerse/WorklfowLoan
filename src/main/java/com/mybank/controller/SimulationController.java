@@ -67,14 +67,9 @@ public class SimulationController implements Serializable {
 
         double tauxMensuel = tauxAnnuel / 12 / 100;
         double mensualite = (montant * tauxMensuel) / (1 - Math.pow(1 + tauxMensuel, -duree));
-        double paiementsExistants = (profile != null && profile.getPaiementsMensuelsDette() != null)
+        double paiementsExistants = profile != null && profile.getPaiementsMensuelsDette() != null
         	    ? profile.getPaiementsMensuelsDette() : 0.0;
-
-        	double tauxEndettementApres = ((paiementsExistants + mensualite) / revenuMensuel) * 100;
-
-
-        // 🧮 Get ClientProfile for tauxEndettementAvant calculation
-        
+        double tauxEndettementApres = (paiementsExistants + mensualite) / revenuMensuel * 100; // 🧮 Get ClientProfile for tauxEndettementAvant calculation
         double tauxEndettementAvant = 0.0;
 
         if (profile != null && profile.getPaiementsMensuelsDette() != null && revenuMensuel != 0) {

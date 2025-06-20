@@ -20,27 +20,21 @@ import jakarta.inject.Named;
 
     @Inject
     private UserController userController;
-    
-    private List&lt;Alert&gt; alertsForCurrentUser;
-
 
     public List&lt;Alert&gt; getMyAlerts() {
-<span class="fc" id="L28">        User currentUser = userController.getCurrentUser();</span>
-<span class="fc bfc" id="L29" title="All 2 branches covered.">        return (currentUser != null) ? alertService.getAllAlertsForUser(currentUser) : List.of();</span>
-
+<span class="fc" id="L25">        User currentUser = userController.getCurrentUser();</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        return (currentUser != null) ? alertService.getAllAlertsForUser(currentUser) : List.of();</span>
     }
 
     public int getAlertCount() {
-<span class="fc" id="L34">        return getMyAlerts().size();</span>
+<span class="fc" id="L30">        return getMyAlerts().size();</span>
     }
+
     public void markAlertsAsRead() {
-<span class="fc" id="L37">        User currentUser = userController.getCurrentUser();</span>
-<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (currentUser != null) {</span>
-<span class="fc" id="L39">            alertService.markAllAsRead(currentUser);</span>
-<span class="fc" id="L40">            alertsForCurrentUser = alertService.getUnreadAlertsForUser(currentUser); // refresh</span>
+<span class="fc" id="L34">        User currentUser = userController.getCurrentUser();</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (currentUser != null) {</span>
+<span class="fc" id="L36">            alertService.markAllAsRead(currentUser);</span>
         }
-<span class="fc" id="L42">    }</span>
-
-
+<span class="fc" id="L38">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -70,36 +70,36 @@
 	            );
 	
 	            // Send POST request
-<span class="fc" id="L73">	            try (OutputStream os = conn.getOutputStream()) {</span>
-<span class="fc" id="L74">	                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);</span>
-<span class="fc" id="L75">	                os.write(input, 0, input.length);</span>
+<span class="nc" id="L73">	            try (OutputStream os = conn.getOutputStream()) {</span>
+<span class="nc" id="L74">	                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);</span>
+<span class="nc" id="L75">	                os.write(input, 0, input.length);</span>
 	            }
 	
 	            // Parse JSON response
-<span class="fc" id="L79">	            try (InputStream is = conn.getInputStream();</span>
-<span class="fc" id="L80">	                 JsonReader reader = Json.createReader(is)) {</span>
-<span class="fc" id="L81">	                JsonObject response = reader.readObject();</span>
+<span class="nc" id="L79">	            try (InputStream is = conn.getInputStream();</span>
+<span class="nc" id="L80">	                 JsonReader reader = Json.createReader(is)) {</span>
+<span class="nc" id="L81">	                JsonObject response = reader.readObject();</span>
 	
-<span class="fc" id="L83">	                boolean approved = response.getBoolean(&quot;loanApproved&quot;);</span>
-<span class="fc" id="L84">	                double probability = response.getJsonNumber(&quot;approvalProbability&quot;).doubleValue();</span>
-<span class="fc" id="L85">	                double riskScore = response.getJsonNumber(&quot;predictedRiskScore&quot;).doubleValue();</span>
+<span class="nc" id="L83">	                boolean approved = response.getBoolean(&quot;loanApproved&quot;);</span>
+<span class="nc" id="L84">	                double probability = response.getJsonNumber(&quot;approvalProbability&quot;).doubleValue();</span>
+<span class="nc" id="L85">	                double riskScore = response.getJsonNumber(&quot;predictedRiskScore&quot;).doubleValue();</span>
 	
-<span class="fc" id="L87">	                return new PredictionResult(approved, probability, riskScore);</span>
+<span class="nc" id="L87">	                return new PredictionResult(approved, probability, riskScore);</span>
 	            }
 	
-<span class="nc" id="L90">	        } catch (Exception e) {</span>
-<span class="nc" id="L91">	            e.printStackTrace();</span>
+<span class="fc" id="L90">	        } catch (Exception e) {</span>
+<span class="fc" id="L91">	            e.printStackTrace();</span>
 	
-<span class="nc" id="L93">	            try (InputStream errorStream = conn.getErrorStream()) {</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">	                if (errorStream != null) {</span>
+<span class="fc" id="L93">	            try (InputStream errorStream = conn.getErrorStream()) {</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">	                if (errorStream != null) {</span>
 <span class="nc" id="L95">	                    String errorResponse = new String(errorStream.readAllBytes(), StandardCharsets.UTF_8);</span>
 <span class="nc" id="L96">	                    System.err.println(&quot;Error response from Flask: &quot; + errorResponse);</span>
 	                }
 <span class="nc" id="L98">	            } catch (Exception inner) {</span>
 <span class="nc" id="L99">	                System.err.println(&quot;Failed to read error stream: &quot; + inner.getMessage());</span>
-<span class="nc" id="L100">	            }</span>
+<span class="fc" id="L100">	            }</span>
 	
-<span class="nc" id="L102">	            return new PredictionResult(false, 0.0, -1.0);</span>
+<span class="fc" id="L102">	            return new PredictionResult(false, 0.0, -1.0);</span>
 	        }
 	    }
 	

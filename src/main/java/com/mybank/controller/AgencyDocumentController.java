@@ -11,14 +11,12 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.primefaces.model.file.UploadedFile;
-import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.DefaultStreamedContent;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 @Named("agencyDocumentController")
 @SessionScoped

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="mybank.service.LoanApprovalPredictionServiceTest" time="0.309" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="mybank.service.LoanApprovalPredictionServiceTest" time="0.054" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Eclipse Adoptium\jdk-21.0.7.6-hotspot\bin"/>
-    <property name="sun.java.command" value="C:\Users\HP\AppData\Local\Temp\surefire14949591166675239250\surefirebooter-20250619155208590_3.jar C:\Users\HP\AppData\Local\Temp\surefire14949591166675239250 2025-06-19T15-52-08_366-jvmRun1 surefire-20250619155208590_1tmp surefire_0-20250619155208590_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\HP\AppData\Local\Temp\surefire13356596829449734975\surefirebooter-20250620222652999_3.jar C:\Users\HP\AppData\Local\Temp\surefire13356596829449734975 2025-06-20T22-26-52_748-jvmRun1 surefire-20250620222652999_1tmp surefire_0-20250620222652999_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\HP\eclipse-workspace\mybank\target\test-classes;C:\Users\HP\eclipse-workspace\mybank\target\classes;C:\Users\HP\.m2\repository\jakarta\platform\jakarta.jakartaee-api\10.0.0\jakarta.jakartaee-api-10.0.0.jar;C:\Users\HP\.m2\repository\jakarta\platform\jakarta.jakartaee-web-api\10.0.0\jakarta.jakartaee-web-api-10.0.0.jar;C:\Users\HP\.m2\repository\jakarta\servlet\jakarta.servlet-api\6.0.0\jakarta.servlet-api-6.0.0.jar;C:\Users\HP\.m2\repository\jakarta\servlet\jsp\jakarta.servlet.jsp-api\3.1.0\jakarta.servlet.jsp-api-3.1.0.jar;C:\Users\HP\.m2\repository\jakarta\el\jakarta.el-api\5.0.1\jakarta.el-api-5.0.1.jar;C:\Users\HP\.m2\repository\jakarta\servlet\jsp\jstl\jakarta.servlet.jsp.jstl-api\3.0.0\jakarta.servlet.jsp.jstl-api-3.0.0.jar;C:\Users\HP\.m2\repository\jakarta\ws\rs\jakarta.ws.rs-api\3.1.0\jakarta.ws.rs-api-3.1.0.jar;C:\Users\HP\.m2\repository\jakarta\websocket\jakarta.websocket-api\2.1.0\jakarta.websocket-api-2.1.0.jar;C:\Users\HP\.m2\repository\jakarta\websocket\jakarta.websocket-client-api\2.1.0\jakarta.websocket-client-api-2.1.0.jar;C:\Users\HP\.m2\repository\jakarta\json\bind\jakarta.json.bind-api\3.0.0\jakarta.json.bind-api-3.0.0.jar;C:\Users\HP\.m2\repository\jakarta\annotation\jakarta.annotation-api\2.1.1\jakarta.annotation-api-2.1.1.jar;C:\Users\HP\.m2\repository\jakarta\ejb\jakarta.ejb-api\4.0.1\jakarta.ejb-api-4.0.1.jar;C:\Users\HP\.m2\repository\jakarta\transaction\jakarta.transaction-api\2.0.1\jakarta.transaction-api-2.0.1.jar;C:\Users\HP\.m2\repository\jakarta\persistence\jakarta.persistence-api\3.1.0\jakarta.persistence-api-3.1.0.jar;C:\Users\HP\.m2\repository\jakarta\validation\jakarta.validation-api\3.0.2\jakarta.validation-api-3.0.2.jar;C:\Users\HP\.m2\repository\jakarta\interceptor\jakarta.interceptor-api\2.1.0\jakarta.interceptor-api-2.1.0.jar;C:\Users\HP\.m2\repository\jakarta\enterprise\jakarta.enterprise.cdi-api\4.0.1\jakarta.enterprise.cdi-api-4.0.1.jar;C:\Users\HP\.m2\repository\jakarta\enterprise\jakarta.enterprise.lang-model\4.0.1\jakarta.enterprise.lang-model-4.0.1.jar;C:\Users\HP\.m2\repository\jakarta\inject\jakarta.inject-api\2.0.1\jakarta.inject-api-2.0.1.jar;C:\Users\HP\.m2\repository\jakarta\authentication\jakarta.authentication-api\3.0.0\jakarta.authentication-api-3.0.0.jar;C:\Users\HP\.m2\repository\jakarta\security\enterprise\jakarta.security.enterprise-api\3.0.0\jakarta.security.enterprise-api-3.0.0.jar;C:\Users\HP\.m2\repository\jakarta\jms\jakarta.jms-api\3.1.0\jakarta.jms-api-3.1.0.jar;C:\Users\HP\.m2\repository\jakarta\activation\jakarta.activation-api\2.1.0\jakarta.activation-api-2.1.0.jar;C:\Users\HP\.m2\repository\jakarta\mail\jakarta.mail-api\2.1.0\jakarta.mail-api-2.1.0.jar;C:\Users\HP\.m2\repository\jakarta\resource\jakarta.resource-api\2.1.0\jakarta.resource-api-2.1.0.jar;C:\Users\HP\.m2\repository\jakarta\authorization\jakarta.authorization-api\2.1.0\jakarta.authorization-api-2.1.0.jar;C:\Users\HP\.m2\repository\jakarta\batch\jakarta.batch-api\2.1.1\jakarta.batch-api-2.1.1.jar;C:\Users\HP\.m2\repository\org\primefaces\primefaces\13.0.2\primefaces-13.0.2-jakarta.jar;C:\Users\HP\.m2\repository\jakarta\faces\jakarta.faces-api\4.0.1\jakarta.faces-api-4.0.1.jar;C:\Users\HP\.m2\repository\com\oracle\database\jdbc\ojdbc17\23.6.0.24.10\ojdbc17-23.6.0.24.10.jar;C:\Users\HP\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\HP\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;C:\Users\HP\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\HP\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\HP\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\HP\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\HP\.m2\repository\org\mockito\mockito-core\5.12.0\mockito-core-5.12.0.jar;C:\Users\HP\.m2\repository\net\bytebuddy\byte-buddy\1.14.15\byte-buddy-1.14.15.jar;C:\Users\HP\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.15\byte-buddy-agent-1.14.15.jar;C:\Users\HP\.m2\repository\org\objenesis\objenesis\3.3\objenesis-3.3.jar;C:\Users\HP\.m2\repository\org\mockito\mockito-junit-jupiter\5.12.0\mockito-junit-jupiter-5.12.0.jar;C:\Users\HP\.m2\repository\org\eclipse\parsson\parsson\1.1.1\parsson-1.1.1.jar;C:\Users\HP\.m2\repository\jakarta\json\jakarta.json-api\2.1.1\jakarta.json-api-2.1.1.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -26,12 +26,11 @@
     <property name="java.home" value="C:\Program Files\Eclipse Adoptium\jdk-21.0.7.6-hotspot"/>
     <property name="file.separator" value="\"/>
     <property name="basedir" value="C:\Users\HP\eclipse-workspace\mybank"/>
-    <property name="style.color" value="always"/>
     <property name="java.vm.compressedOopsMode" value="32-bit"/>
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\HP\AppData\Local\Temp\surefire14949591166675239250\surefirebooter-20250619155208590_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\HP\AppData\Local\Temp\surefire13356596829449734975\surefirebooter-20250620222652999_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.7+6-LTS"/>
@@ -52,7 +51,7 @@
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="sun.os.patch.level" value=""/>
     <property name="native.encoding" value="Cp1252"/>
-    <property name="java.library.path" value="C:\Program Files\Eclipse Adoptium\jdk-21.0.7.6-hotspot\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:/Users/HP/.p2/pool/plugins/org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604/jre/bin/server;C:/Users/HP/.p2/pool/plugins/org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604/jre/bin;C:\Program Files\Eclipse Adoptium\jdk-21.0.7.6-hotspot\bin;C:\app\HP\product\21c\dbhomeXE\bin;C:\Program Files\Eclipse Adoptium\jdk-17.0.14.7-hotspot\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\ProgramData\chocolatey\lib\maven\apache-maven-3.9.9\bin;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Vagrant\bin;C:\Users\HP\AppData\Local\Programs\Python\Python313\Scripts\;C:\Users\HP\AppData\Local\Programs\Python\Python313\;C:\Users\HP\AppData\Local\Programs\Python\Launcher\;C:\Users\HP\AppData\Local\Microsoft\WindowsApps;C:\Users\HP\AppData\Local\Programs\Microsoft VS Code\bin;C:\maven-mvnd-1.0.2-windows-amd64\maven-mvnd-1.0.2-windows-amd64\bin;;C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2025.1.1.1\bin;;C:\Users\HP\AppData\Roaming\npm;C:\Users\HP\Desktop;;."/>
+    <property name="java.library.path" value="C:\Program Files\Eclipse Adoptium\jdk-21.0.7.6-hotspot\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\Eclipse Adoptium\jdk-21.0.7.6-hotspot\bin;C:\app\HP\product\21c\dbhomeXE\bin;C:\Program Files\Eclipse Adoptium\jdk-17.0.14.7-hotspot\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\ProgramData\chocolatey\lib\maven\apache-maven-3.9.9\bin;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Vagrant\bin;C:\Users\HP\AppData\Local\Programs\Python\Python313\Scripts\;C:\Users\HP\AppData\Local\Programs\Python\Python313\;C:\Users\HP\AppData\Local\Programs\Python\Launcher\;C:\Users\HP\AppData\Local\Microsoft\WindowsApps;C:\Users\HP\AppData\Local\Programs\Microsoft VS Code\bin;C:\maven-mvnd-1.0.2-windows-amd64\maven-mvnd-1.0.2-windows-amd64\bin;;C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2025.1.1.1\bin;;C:\Users\HP\AppData\Roaming\npm;."/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
     <property name="stderr.encoding" value="Cp1252"/>
     <property name="java.vendor" value="Eclipse Adoptium"/>
@@ -60,10 +59,101 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testPredictLoanApproval_LiveCall" classname="mybank.service.LoanApprovalPredictionServiceTest" time="0.302">
-    <system-out><![CDATA[Approved: true
-Probability: 58.0
-Risk Score: 85.98
+  <testcase name="testPredictLoanApproval_LiveCall" classname="mybank.service.LoanApprovalPredictionServiceTest" time="0.052">
+    <system-out><![CDATA[Approved: false
+Probability: 0.0
+Risk Score: -1.0
 ]]></system-out>
+    <system-err><![CDATA[java.net.ConnectException: Connection refused: connect
+	at java.base/sun.nio.ch.Net.connect0(Native Method)
+	at java.base/sun.nio.ch.Net.connect(Net.java:589)
+	at java.base/sun.nio.ch.Net.connect(Net.java:578)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:583)
+	at java.base/java.net.Socket.connect(Socket.java:751)
+	at java.base/java.net.Socket.connect(Socket.java:686)
+	at java.base/sun.net.NetworkClient.doConnect(NetworkClient.java:183)
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:531)
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:636)
+	at java.base/sun.net.www.http.HttpClient.<init>(HttpClient.java:280)
+	at java.base/sun.net.www.http.HttpClient.New(HttpClient.java:386)
+	at java.base/sun.net.www.http.HttpClient.New(HttpClient.java:408)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1319)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1252)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1138)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:1067)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getOutputStream0(HttpURLConnection.java:1461)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getOutputStream(HttpURLConnection.java:1432)
+	at com.mybank.service.LoanApprovalPredictionService.predictLoanApproval(LoanApprovalPredictionService.java:73)
+	at mybank.service.LoanApprovalPredictionServiceTest.testPredictLoanApproval_LiveCall(LoanApprovalPredictionServiceTest.java:15)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]></system-err>
   </testcase>
 </testsuite>

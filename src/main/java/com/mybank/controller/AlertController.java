@@ -20,26 +20,20 @@ public class AlertController implements Serializable {
 
     @Inject
     private UserController userController;
-    
-    private List<Alert> alertsForCurrentUser;
-
 
     public List<Alert> getMyAlerts() {
         User currentUser = userController.getCurrentUser();
         return (currentUser != null) ? alertService.getAllAlertsForUser(currentUser) : List.of();
-
     }
 
     public int getAlertCount() {
         return getMyAlerts().size();
     }
+
     public void markAlertsAsRead() {
         User currentUser = userController.getCurrentUser();
         if (currentUser != null) {
             alertService.markAllAsRead(currentUser);
-            alertsForCurrentUser = alertService.getUnreadAlertsForUser(currentUser); // refresh
         }
     }
-
-
 }

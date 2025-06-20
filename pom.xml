@@ -138,6 +138,48 @@
   </executions>
 </plugin>
 
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-checkstyle-plugin</artifactId>
+    <version>3.2.1</version>
+    <executions>
+        <execution>
+            <phase>verify</phase>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <configLocation>google_checks.xml</configLocation> <!-- or sun_checks.xml -->
+        <encoding>UTF-8</encoding>
+        <consoleOutput>true</consoleOutput>
+        <failsOnError>true</failsOnError>
+    </configuration>
+</plugin>
+
+
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-pmd-plugin</artifactId>
+    <version>3.21.2</version>
+    <executions>
+        <execution>
+            <phase>verify</phase>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+
+
+
+
+
+
+
+
 
 
     </plugins>

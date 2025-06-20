@@ -2,7 +2,6 @@ package com.mybank.controller;
 
 import com.mybank.model.Agency;
 import com.mybank.model.Alert;
-import com.mybank.model.ClientProfile;
 import com.mybank.model.DemandeCredit;
 import com.mybank.model.Folder;
 import com.mybank.model.FolderAction;

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: mybank.service.AgencyDocumentServiceTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.396 s -- in mybank.service.AgencyDocumentServiceTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.420 s -- in mybank.service.AgencyDocumentServiceTest
