@@ -33,8 +33,16 @@ pipeline {
                         pmd:pmd \
                         jacoco:prepare-agent \
                         test \
-                        jacoco:report \
-                        sonar:sonar \
+                        jacoco:report
+                '''
+            }
+        }
+
+        stage('SonarCloud Analysis') {
+            steps {
+                echo 'Running SonarCloud static code analysis...'
+                sh '''
+                    mvn sonar:sonar \
                         -Dsonar.projectKey=AzizVerse_WorklfowLoan \
                         -Dsonar.organization=azizverse \
                         -Dsonar.host.url=https://sonarcloud.io \
