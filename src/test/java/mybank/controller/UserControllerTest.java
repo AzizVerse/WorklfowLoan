@@ -12,13 +12,11 @@ import static org.mockito.Mockito.*;
 
 public class UserControllerTest {
 
-    @InjectMocks
     private UserController userController;
 
     @Mock
     private UserService userService;
 
-    
     private User mockUser;
 
     @BeforeEach
@@ -27,13 +25,14 @@ public class UserControllerTest {
 
         userController = new UserController();
         userController.setUserService(userService);
-       
 
         mockUser = new User();
         mockUser.setUsername("testuser");
         mockUser.setPassword("testpass");
         mockUser.setRole(Role.CHARGE_DOSSIER);
         mockUser.setDepartment(Department.ENG);
+        mockUser.setFirstName("Test");
+        mockUser.setLastName("User");
     }
 
     @Test
@@ -68,6 +67,7 @@ public class UserControllerTest {
     @Test
     public void testRegister_DuplicateUsername() {
         userController.setUsername("testuser");
+
         when(userService.getUserByUsername("testuser")).thenReturn(mockUser);
 
         String result = userController.register();

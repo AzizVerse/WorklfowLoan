@@ -23,21 +23,21 @@ import java.io.ByteArrayInputStream;
 public class AgencyDocumentController implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+ // NOSONAR: Field injection is used intentionally in JSF managed beans
     @Inject
     private AgencyDocumentService agencyDocumentService;
-
+ // NOSONAR: Field injection is used intentionally in JSF managed beans
     @Inject
     private FolderController folderController;
-    
+ // NOSONAR: Field injection is used intentionally in JSF managed beans
     @Inject
     private AlertService alertService;
-
+ // NOSONAR: Field injection is used intentionally in JSF managed beans
     @Inject
     private UserController userController;
 
 
-    private UploadedFile uploadedFile;
+    private transient UploadedFile uploadedFile;
     private String customFileName;
     private String uploadMessage;
 

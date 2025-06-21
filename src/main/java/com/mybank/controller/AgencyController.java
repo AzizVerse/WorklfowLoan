@@ -18,13 +18,14 @@ import java.util.List;
 @SessionScoped
 public class AgencyController implements Serializable {
 	 private static final long serialVersionUID = 1L;
-
+        
+	// NOSONAR: Field injection is used intentionally in JSF managed beans
 	    @Inject
 	    private AgencyService agencyService;
-
+	 // NOSONAR: Field injection is used intentionally in JSF managed beans
 	    @Inject
 	    private UserService userService;
-
+	 // NOSONAR: Field injection is used intentionally in JSF managed beans
 	    @Inject
 	    private FolderService folderService;
 

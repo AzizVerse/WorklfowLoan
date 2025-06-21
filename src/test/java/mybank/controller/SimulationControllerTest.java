@@ -21,51 +21,47 @@ public class SimulationControllerTest {
 
     private SimulationController simulationController;
 
-    @Mock private FolderController mockFolderController;
-    @Mock private DemandeCreditService mockDemandeCreditService;
-    @Mock private ClientProfileService mockClientProfileService;
-    @Mock private LoanApprovalPredictionService mockPredictionService;
-    @Mock private ClientProfileController mockClientProfileController;
+    @Mock private FolderController folderController;
+    @Mock private DemandeCreditService demandeCreditService;
+    @Mock private ClientProfileService clientProfileService;
+    @Mock private LoanApprovalPredictionService predictionService;
+    @Mock private ClientProfileController clientProfileController;
 
-    private Folder sampleFolder;
-    private ClientProfile sampleProfile;
+    private Folder folder;
+    private ClientProfile profile;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        // Create instance and inject mocks via setters
         simulationController = new SimulationController();
-        simulationController.setFolderBean(mockFolderController);
-        simulationController.setDemandeCreditService(mockDemandeCreditService);
-        simulationController.setClientProfileService(mockClientProfileService);
-        simulationController.setLoanApprovalPredictionService(mockPredictionService);
-        simulationController.setClientProfileController(mockClientProfileController);
+        simulationController.setFolderBean(folderController);
+        simulationController.setDemandeCreditService(demandeCreditService);
+        simulationController.setClientProfileService(clientProfileService);
+        simulationController.setLoanApprovalPredictionService(predictionService);
+        simulationController.setClientProfileController(clientProfileController);
 
-        // Sample folder setup
-        sampleFolder = new Folder();
-        sampleFolder.setMontantDemande(10000.0);
-        sampleFolder.setDureeMois(12);
-        sampleFolder.setTauxAnnuel(5.0);
-        sampleFolder.setRevenuMensuel(2000.0);
+        folder = new Folder();
+        folder.setMontantDemande(10000.0);
+        folder.setDureeMois(12);
+        folder.setTauxAnnuel(5.0);
+        folder.setRevenuMensuel(2000.0);
 
-        // Sample profile setup
-        sampleProfile = new ClientProfile();
-        sampleProfile.setPaiementsMensuelsDette(300.0);
+        profile = new ClientProfile();
+        profile.setPaiementsMensuelsDette(300.0);
 
-        // Mocking behavior
-        when(mockFolderController.getSelectedFolder()).thenReturn(sampleFolder);
-        when(mockClientProfileService.findByFolder(sampleFolder)).thenReturn(sampleProfile);
+        when(folderController.getSelectedFolder()).thenReturn(folder);
+        when(clientProfileService.findByFolder(folder)).thenReturn(profile);
     }
 
     @Test
-    public void testSimulate_CalculatesMensualiteAndEndettement() {
+    public void testSimulate_CorrectCalculations() {
         simulationController.simulate();
-        DemandeCredit result = simulationController.getSimulatedResult();
 
+        DemandeCredit result = simulationController.getSimulatedResult();
         assertNotNull(result);
-        assertEquals(15.0, result.getTauxEndettementAvant(), 0.01); // 300 / 2000 * 100
-        assertEquals(856.07, result.getMensualiteEstimee(), 1.0);   // Approx monthly payment
-        assertEquals(57.8, result.getTauxEndettement(), 1.0);       // (300 + mensualité) / 2000 * 100
+        assertEquals(15.0, result.getTauxEndettementAvant(), 0.01);
+        assertEquals(856.07, result.getMensualiteEstimee(), 1.0);   // Approx value
+        assertEquals(57.8, result.getTauxEndettement(), 1.0);       // Approx value
     }
 }

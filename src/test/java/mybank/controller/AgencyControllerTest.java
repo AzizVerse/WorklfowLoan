@@ -6,6 +6,7 @@ import com.mybank.model.User;
 import com.mybank.service.AgencyService;
 import com.mybank.service.FolderService;
 import com.mybank.service.UserService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -17,7 +18,6 @@ import static org.mockito.Mockito.*;
 
 public class AgencyControllerTest {
 
-    @InjectMocks
     private AgencyController agencyController;
 
     @Mock
@@ -32,10 +32,11 @@ public class AgencyControllerTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        agencyController = new AgencyController();
-        MockitoAnnotations.initMocks(this);
 
-        // Inject mocks manually since controller uses field injection
+        // ✅ Create instance manually since no constructor is defined
+        agencyController = new AgencyController();
+
+        // ✅ Inject mocks using setter methods
         agencyController.setAgencyService(agencyService);
         agencyController.setUserService(userService);
         agencyController.setFolderService(folderService);
@@ -59,7 +60,7 @@ public class AgencyControllerTest {
 
         verify(agencyService).createAgency(any(Agency.class));
         assertEquals("Agence créée avec succès.", agencyController.getCreationMessage());
-        assertNull(result); // stays on same page
+        assertNull(result);
     }
 
     @Test
@@ -83,7 +84,7 @@ public class AgencyControllerTest {
         when(userService.findUsersByRole("DIRECTEUR_AGENCE")).thenReturn(List.of(director1, director2));
         when(agencyService.findAllAgencies()).thenReturn(List.of(assignedAgency));
 
-        agencyController.init(); // refresh list
+        agencyController.init();
 
         List<User> result = agencyController.getAvailableDirectors();
         assertEquals(1, result.size());

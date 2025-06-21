@@ -94,7 +94,7 @@ public class FolderControllerTest {
 
         folderController.markAsCompleted();
 
-        assertEquals("\uD83D\uDCC1 Le dossier a été marqué comme terminé.", folderController.getCreationMessage());
+        assertEquals("📁 Le dossier a été marqué comme terminé.", folderController.getCreationMessage());
         verify(folderService).updateFolder(folder);
         verify(folderActionService).saveAction(any(FolderAction.class));
         verify(alertService).createAlert(any(Alert.class));
@@ -113,10 +113,8 @@ public class FolderControllerTest {
     @Test
     public void testGetActionsForSelectedFolder() {
         folderController.setSelectedFolder(folder);
-        FolderAction action1 = new FolderAction();
-        action1.setId(2L);
-        FolderAction action2 = new FolderAction();
-        action2.setId(1L);
+        FolderAction action1 = new FolderAction(); action1.setId(2L);
+        FolderAction action2 = new FolderAction(); action2.setId(1L);
 
         when(folderActionService.getActionsByFolder(folder)).thenReturn(List.of(action1, action2));
 

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: mybank.controller.AgencyDocumentControllerTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.774 s -- in mybank.controller.AgencyDocumentControllerTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.865 s -- in mybank.controller.AgencyDocumentControllerTest
