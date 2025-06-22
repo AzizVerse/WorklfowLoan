@@ -14,6 +14,7 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 @Named("agencyBean") // Match XHTML reference
 @SessionScoped
 public class AgencyController implements Serializable {
