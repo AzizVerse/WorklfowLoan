@@ -42,10 +42,10 @@ import java.util.List;
 	    private Niveau niveau;
 	    private String loginError;
 	    private String registrationMessage;
-	    private User user;
-	    private User responsableAnalyst;
-	    private User directeurENG;
-	    private User directeurCIC;
+	    private transient User user;
+	    private transient User responsableAnalyst;
+	    private transient User directeurENG;
+	    private transient User directeurCIC;
 
 	    @PostConstruct
 	    public void init() {

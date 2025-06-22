@@ -55,10 +55,10 @@ public class AgencyController implements Serializable {
     private Long directorId;
     private String creationMessage;
 
-    private List<Agency> agencyList;
-    private Agency selectedAgency;
+    private transient List<Agency> agencyList;
+    private transient Agency selectedAgency;
     
-    private List<Folder> externalFolders = new ArrayList<>();
+    private transient List<Folder> externalFolders = new ArrayList<>();
 
     public List<Folder> getExternalFolders() {
         return externalFolders;

@@ -108,13 +108,13 @@ public class FolderController implements Serializable {
     private Integer dureeMois;
     private Double tauxAnnuel;
 
-    private List<Folder> myFolders;
-    private Folder selectedFolder;
-    private User selectedAnalyst;
-    private List<Folder> analystFolders;
-    private List<Folder> cicFolders;
-    private List<Folder> foldersAssignedToMe;
-    private List<Folder> foldersAssignedToCIC;
+    private transient List<Folder> myFolders;
+    private transient Folder selectedFolder;
+    private transient User selectedAnalyst;
+    private transient List<Folder> analystFolders;
+    private transient List<Folder> cicFolders;
+    private transient List<Folder> foldersAssignedToMe;
+    private transient List<Folder> foldersAssignedToCIC;
     private Long selectedAnalystId;
     private Long selectedCICAnalystId;
     
@@ -1139,7 +1139,7 @@ public class FolderController implements Serializable {
 
 
 
-    private List<Folder> filteredFolders;
+    private transient List<Folder> filteredFolders;
 
     public List<Folder> getFilteredFolders() {
         return filteredFolders;

@@ -13,7 +13,7 @@ public class ClientProfile implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "folder_id", nullable = false, unique = true)
-    private Folder folder;
+    private transient Folder folder;
 
     // === Features not already in Folder or DemandeCredit ===
 
