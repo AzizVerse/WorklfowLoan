@@ -10,12 +10,10 @@ pipeline {
         stage('Checkout Repos') {
             steps {
                 echo 'Cloning Java EE Backend and Python API...'
-                // Clone Java backend
                 git branch: 'main',
                     url: 'https://github.com/AzizVerse/WorklfowLoan.git',
                     credentialsId: 'github-creds'
 
-                // Clone Python ML API in subdirectory
                 dir('loan-ml-api') {
                     git branch: 'main',
                         url: 'https://github.com/AzizVerse/loan-ml-api.git',
@@ -65,6 +63,15 @@ pipeline {
                 }
             }
         }
+
+        stage('Security: OWASP Dependency Check') {
+            steps {
+                echo 'Running OWASP Dependency Check for Java vulnerabilities...'
+                sh '''
+                    mvn org.owasp:dependency-check-maven:check -Dformat=HTML
+                '''
+            }
+        }
     }
 
     post {
@@ -76,6 +83,9 @@ pipeline {
             archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
+
+            // OWASP security report
+            archiveArtifacts artifacts: '**/target/dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
 
             // Python reports
             archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
