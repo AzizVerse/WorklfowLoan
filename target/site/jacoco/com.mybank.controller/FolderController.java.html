@@ -1,0 +1,1219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FolderController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybank</a> &gt; <a href="index.source.html" class="el_package">com.mybank.controller</a> &gt; <span class="el_source">FolderController.java</span></div><h1>FolderController.java</h1><pre class="source lang-java linenums">package com.mybank.controller;
+
+import com.mybank.model.Agency;
+import com.mybank.model.Alert;
+import com.mybank.model.DemandeCredit;
+import com.mybank.model.Folder;
+import com.mybank.model.FolderAction;
+import com.mybank.model.FolderNavigation;
+import com.mybank.model.Role;
+import com.mybank.model.User;
+import com.mybank.service.AgencyService;
+import com.mybank.service.AlertService;
+import com.mybank.service.ClientProfileService;
+import com.mybank.service.DemandeCreditService;
+import com.mybank.service.FolderActionService;
+import com.mybank.service.FolderService;
+import com.mybank.service.UserService;
+
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.model.SelectItem;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+/**
+ * JSF managed bean - must use field injection due to JSF lifecycle requirements.
+ * Constructor injection causes deployment issues (e.g. WELD-001410).
+ */
+@Named(&quot;folderBean&quot;)
+@SessionScoped
+@SuppressWarnings(&quot;squid:S6813&quot;) // Sonar false positive: field injection is required in JSF	
+<span class="fc" id="L38">public class FolderController implements Serializable {</span>
+
+    private static final long serialVersionUID = 1L;
+
+    @Inject
+    private FolderService folderService;
+    public void setFolderService(FolderService folderService) {
+<span class="fc" id="L45">        this.folderService = folderService;</span>
+<span class="fc" id="L46">    }</span>
+
+    @Inject
+    private UserService userService;
+    public void setUserService(UserService userService) {
+<span class="fc" id="L51">        this.userService = userService;</span>
+<span class="fc" id="L52">    }</span>
+
+    @Inject
+    private UserController userController;
+    public void setUserController(UserController userController) {
+<span class="fc" id="L57">        this.userController = userController;</span>
+<span class="fc" id="L58">    }</span>
+
+    @Inject
+    private FolderActionService folderActionService;
+    public void setFolderActionService(FolderActionService folderActionService) {
+<span class="fc" id="L63">        this.folderActionService = folderActionService;</span>
+<span class="fc" id="L64">    }</span>
+
+    @Inject
+    private AlertService alertService;
+    public void setAlertService(AlertService alertService) {
+<span class="fc" id="L69">        this.alertService = alertService;</span>
+<span class="fc" id="L70">    }</span>
+
+    @Inject
+    private AgencyService agencyService;
+    public void setAgencyService(AgencyService agencyService) {
+<span class="fc" id="L75">        this.agencyService = agencyService;</span>
+<span class="fc" id="L76">    }</span>
+
+    
+
+    @Inject
+    private DemandeCreditService demandeCreditService;
+    public void setDemandeCreditService(DemandeCreditService demandeCreditService) {
+<span class="fc" id="L83">        this.demandeCreditService = demandeCreditService;</span>
+<span class="fc" id="L84">    }</span>
+
+    @Inject
+    private ClientProfileService clientProfileService;
+    public void setClientProfileService(ClientProfileService clientProfileService) {
+<span class="fc" id="L89">        this.clientProfileService = clientProfileService;</span>
+<span class="fc" id="L90">    }</span>
+
+    @Inject
+    private ClientProfileController clientProfileController;
+    public void setClientProfileController(ClientProfileController clientProfileController) {
+<span class="fc" id="L95">        this.clientProfileController = clientProfileController;</span>
+<span class="fc" id="L96">    }</span>
+    
+    
+
+
+    private String reference;
+    private String description;
+    private String creationMessage;
+    private String client;
+    private String newComment;
+    private Double revenuMensuel;
+    private Double montantDemande;
+    private Integer dureeMois;
+    private Double tauxAnnuel;
+
+    private transient List&lt;Folder&gt; myFolders;
+    private transient Folder selectedFolder;
+    private transient User selectedAnalyst;
+    private transient List&lt;Folder&gt; analystFolders;
+    private transient List&lt;Folder&gt; cicFolders;
+    private transient List&lt;Folder&gt; foldersAssignedToMe;
+    private transient List&lt;Folder&gt; foldersAssignedToCIC;
+    private Long selectedAnalystId;
+    private Long selectedCICAnalystId;
+    
+    private List&lt;SelectItem&gt; options;
+    private FolderNavigation selectedStatus;
+
+    public FolderNavigation getSelectedStatus() {
+<span class="nc" id="L125">        return selectedStatus;</span>
+    }
+
+    public void setSelectedStatus(FolderNavigation selectedStatus) {
+<span class="nc" id="L129">        this.selectedStatus = selectedStatus;</span>
+<span class="nc" id="L130">    }</span>
+
+    public Long getSelectedCICAnalystId() {
+<span class="nc" id="L133">        return selectedCICAnalystId;</span>
+    }
+
+    public void setSelectedCICAnalystId(Long selectedCICAnalystId) {
+<span class="fc" id="L137">        this.selectedCICAnalystId = selectedCICAnalystId;</span>
+<span class="fc" id="L138">    }</span>
+
+    public Long getSelectedAnalystId() {
+<span class="nc" id="L141">        return selectedAnalystId;</span>
+    }
+
+    public void setSelectedAnalystId(Long selectedAnalystId) {
+<span class="fc" id="L145">        this.selectedAnalystId = selectedAnalystId;</span>
+<span class="fc" id="L146">    }</span>
+    
+    
+    
+    public List&lt;SelectItem&gt; getStatusOptions() {
+<span class="nc" id="L151">        List&lt;SelectItem&gt; options = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L152">        options.add(new SelectItem(null, &quot;Tous les statuts&quot;)); // default</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (FolderNavigation nav : FolderNavigation.values()) {</span>
+<span class="nc" id="L154">            options.add(new SelectItem(nav, &quot;📄 &quot; + nav.name()));</span>
+        }
+<span class="nc" id="L156">        return options;</span>
+    }
+    public void assignFolderAsAdmin() {
+<span class="pc bpc" id="L159" title="2 of 4 branches missed.">        if (selectedFolder != null &amp;&amp; selectedAnalystId != null) {</span>
+<span class="fc" id="L160">            User analyst = userService.getUserById(selectedAnalystId);</span>
+<span class="pc bpc" id="L161" title="2 of 4 branches missed.">            if (analyst != null &amp;&amp; analyst.getRole() == Role.Analyste) {</span>
+<span class="fc" id="L162">                selectedFolder.setAssignedTo(analyst);</span>
+<span class="fc" id="L163">                folderService.updateFolder(selectedFolder);</span>
+
+<span class="fc" id="L165">                FolderAction action = new FolderAction();</span>
+<span class="fc" id="L166">                action.setFolder(selectedFolder);</span>
+<span class="fc" id="L167">                action.setUser(userController.getCurrentUser());</span>
+<span class="fc" id="L168">                action.setComment(&quot;✅ Dossier assigné par l'admin à l’analyste : &quot; + analyst.getFirstName());</span>
+<span class="fc" id="L169">                action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L170">                folderActionService.saveAction(action);</span>
+
+<span class="fc" id="L172">                Alert alert = new Alert();</span>
+<span class="fc" id="L173">                alert.setTargetUser(analyst);</span>
+<span class="fc" id="L174">                alert.setMessage(&quot;🆕 Un dossier vous a été assigné par l’administrateur.&quot;);</span>
+<span class="fc" id="L175">                alertService.createAlert(alert);</span>
+
+                
+
+<span class="fc" id="L179">                newComment = &quot;&quot;;</span>
+            }
+        }
+<span class="fc" id="L182">    }</span>
+    
+    public void assignCICFolderAsAdmin() {
+<span class="pc bpc" id="L185" title="2 of 4 branches missed.">        if (selectedFolder != null &amp;&amp; selectedCICAnalystId != null) {</span>
+<span class="fc" id="L186">            User analyst = userService.getUserById(selectedCICAnalystId);</span>
+<span class="pc bpc" id="L187" title="2 of 4 branches missed.">            if (analyst != null &amp;&amp; analyst.getRole() == Role.Analyste_CIC) {</span>
+<span class="fc" id="L188">                selectedFolder.setAssignedCIC(analyst);</span>
+<span class="fc" id="L189">                folderService.updateFolder(selectedFolder);</span>
+
+<span class="fc" id="L191">                FolderAction action = new FolderAction();</span>
+<span class="fc" id="L192">                action.setFolder(selectedFolder);</span>
+<span class="fc" id="L193">                action.setUser(userController.getCurrentUser());</span>
+<span class="fc" id="L194">                action.setComment(&quot;✅ Dossier assigné par l'admin à l’analyste : &quot; + analyst.getFirstName());</span>
+<span class="fc" id="L195">                action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L196">                folderActionService.saveAction(action);</span>
+
+<span class="fc" id="L198">                Alert alert = new Alert();</span>
+<span class="fc" id="L199">                alert.setTargetUser(analyst);</span>
+<span class="fc" id="L200">                alert.setMessage(&quot;🆕 Un dossier vous a été assigné par l’administrateur.&quot;);</span>
+<span class="fc" id="L201">                alertService.createAlert(alert);</span>
+
+                
+
+<span class="fc" id="L205">                newComment = &quot;&quot;;</span>
+            }
+        }
+<span class="fc" id="L208">    }</span>
+    
+
+
+
+    // 🟢 Called automatically by &lt;f:event&gt;
+    public void loadFoldersForCurrentUser() {
+<span class="fc" id="L215">        User loggedUser = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (loggedUser != null) {</span>
+<span class="pc bpc" id="L217" title="7 of 9 branches missed.">            switch (loggedUser.getRole()) {</span>
+                case DIRECTEUR_AGENCE:
+<span class="nc" id="L219">                    List&lt;Folder&gt; ownAgencyFolders = folderService.getFoldersForDirector(loggedUser);</span>
+<span class="nc" id="L220">                    List&lt;Folder&gt; assignedToAsSuccursale = folderService.getFoldersAssignedToSuccursale(loggedUser);</span>
+
+<span class="nc" id="L222">                    ownAgencyFolders.addAll(assignedToAsSuccursale);</span>
+<span class="nc" id="L223">                    myFolders = ownAgencyFolders.stream()</span>
+<span class="nc" id="L224">                            .sorted(Comparator.comparing(Folder::getCreatedDate).reversed())</span>
+<span class="nc" id="L225">                            .collect(Collectors.toList());</span>
+<span class="nc" id="L226">                        break;</span>
+
+                case Analyste:
+<span class="nc" id="L229">                    foldersAssignedToMe = folderService.getFoldersAssignedToAnalyst(loggedUser).stream()</span>
+<span class="nc" id="L230">                        .sorted(Comparator.comparing(Folder::getCreatedDate).reversed())</span>
+<span class="nc" id="L231">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L232">                    myFolders = null;</span>
+<span class="nc" id="L233">                    break;</span>
+                
+                case Analyste_CIC:
+<span class="nc" id="L236">                	foldersAssignedToCIC = folderService.getFoldersAssignedToCICAnalyst(loggedUser).stream()</span>
+<span class="nc" id="L237">                        .sorted(Comparator.comparing(Folder::getCreatedDate).reversed())</span>
+<span class="nc" id="L238">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L239">                    myFolders = null;</span>
+<span class="nc" id="L240">                    break;    </span>
+
+                case RESPONSABLE_ANALYSTE:
+<span class="nc" id="L243">                    analystFolders = folderService.getAllFoldersAssignedToAnalysts()</span>
+<span class="nc" id="L244">                        .stream()</span>
+<span class="nc" id="L245">                        .sorted(Comparator.comparing(Folder::getCreatedDate).reversed())</span>
+<span class="nc" id="L246">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L247">                    break;</span>
+
+                case DIRECTEUR_ENGAGEMENT:
+<span class="nc" id="L250">                    analystFolders = folderService.getAllFoldersAssignedToAnalysts()</span>
+<span class="nc" id="L251">                        .stream()</span>
+<span class="nc" id="L252">                        .sorted(Comparator.comparing(Folder::getCreatedDate).reversed())</span>
+<span class="nc" id="L253">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L254">                    myFolders = null;</span>
+<span class="nc" id="L255">                    break;</span>
+                case Directeur_CIC:
+<span class="nc" id="L257">                    cicFolders = folderService.getAllFoldersAssignedToCICAnalysts()</span>
+<span class="nc" id="L258">                        .stream()</span>
+<span class="nc" id="L259">                        .sorted(Comparator.comparing(Folder::getCreatedDate).reversed())</span>
+<span class="nc" id="L260">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L261">                    myFolders = null;</span>
+<span class="nc" id="L262">                    break;    </span>
+
+                case CHARGE_DOSSIER:
+<span class="fc" id="L265">                    myFolders = folderService.getFoldersByUser(loggedUser).stream()</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">                        .filter(f -&gt; f.getNavigation() != FolderNavigation.TERMINE)</span>
+<span class="fc" id="L267">                        .sorted(Comparator.comparing(Folder::getCreatedDate).reversed())</span>
+<span class="fc" id="L268">                        .collect(Collectors.toList());</span>
+<span class="fc" id="L269">                    break;</span>
+
+                case ADMIN:
+<span class="fc" id="L272">                    myFolders = folderService.getAllFolders().stream()</span>
+<span class="fc" id="L273">                        .sorted(Comparator.comparing(Folder::getCreatedDate).reversed())</span>
+<span class="fc" id="L274">                        .collect(Collectors.toList());</span>
+<span class="fc" id="L275">                    break;</span>
+
+                default:
+<span class="nc" id="L278">                    myFolders = List.of();</span>
+            }
+        }
+<span class="fc" id="L281">    }</span>
+
+    
+    public void sendToResponsableSuccursale() {
+<span class="fc" id="L285">        User currentUser = userController.getCurrentUser();</span>
+
+<span class="pc bpc" id="L287" title="2 of 4 branches missed.">        if (selectedFolder == null || currentUser == null) {</span>
+<span class="nc" id="L288">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Action non autorisée.&quot;, null));
+<span class="nc" id="L290">            return;</span>
+        }
+
+<span class="fc" id="L293">        Agency agency = selectedFolder.getCreatedBy().getAgency();</span>
+<span class="fc" id="L294">        User responsable = agency.getResponsableSuccursale();</span>
+
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">        if (responsable == null) {</span>
+<span class="nc" id="L297">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_WARN, &quot;⚠️ Aucun Responsable Succursale défini pour cette agence.&quot;, null));
+<span class="nc" id="L299">            return;</span>
+        }
+
+        // ✅ Set navigation and assigned responsible
+<span class="fc" id="L303">        selectedFolder.setNavigation(FolderNavigation.ENVOYE_AU_SUCCURSALE);</span>
+<span class="fc" id="L304">        selectedFolder.setAssignedSuc(responsable);</span>
+
+        // ✅ Persist update
+<span class="fc" id="L307">        folderService.updateFolder(selectedFolder);</span>
+
+        // ✅ Log action
+<span class="fc" id="L310">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L311">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L312">        action.setUser(currentUser);</span>
+<span class="fc" id="L313">        action.setComment(&quot;envoye a &quot;+responsable.getFirstName()+responsable.getLastName()+&quot;: &quot; + newComment);</span>
+<span class="fc" id="L314">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L315">        folderActionService.saveAction(action);</span>
+
+        // ✅ Send alert
+<span class="fc" id="L318">        Alert alert = new Alert();</span>
+<span class="fc" id="L319">        alert.setTargetUser(responsable);</span>
+<span class="fc" id="L320">        alert.setMessage(&quot;📥 Nouveau dossier reçu de l'agence: &quot; + selectedFolder.getReference());</span>
+<span class="fc" id="L321">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L323">        newComment = &quot;&quot;;</span>
+
+<span class="fc" id="L325">        FacesContext.getCurrentInstance().addMessage(null,</span>
+            new FacesMessage(FacesMessage.SEVERITY_INFO, &quot;✅ Dossier envoyé au Responsable Succursale.&quot;, null));
+<span class="fc" id="L327">    }</span>
+
+    public boolean hasResponsableSuccursale(Folder folder) {
+<span class="pc bpc" id="L330" title="2 of 6 branches missed.">        if (folder == null || folder.getCreatedBy() == null || folder.getCreatedBy().getAgency() == null) return false;</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">        return folder.getCreatedBy().getAgency().getResponsableSuccursale() != null;</span>
+    }
+    
+    
+    public boolean isCurrentUserAssignedSuccursale() {
+<span class="fc" id="L336">        User currentUser = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L337" title="1 of 2 branches missed.">        return selectedFolder != null &amp;&amp;</span>
+<span class="pc bpc" id="L338" title="1 of 2 branches missed.">               selectedFolder.getAssignedSuc() != null &amp;&amp;</span>
+<span class="fc bfc" id="L339" title="All 2 branches covered.">               selectedFolder.getAssignedSuc().getId().equals(currentUser.getId());</span>
+    }
+    public boolean isCurrentUserAlsoResponsableSuccursale() {
+<span class="fc" id="L342">        User current = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L343" title="2 of 4 branches missed.">        if (selectedFolder == null || selectedFolder.getCreatedBy() == null) return false;</span>
+
+<span class="fc" id="L345">        Agency agency = selectedFolder.getCreatedBy().getAgency();</span>
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">        return agency != null &amp;&amp;</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">               agency.getResponsableSuccursale() != null &amp;&amp;</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">               agency.getResponsableSuccursale().getId().equals(current.getId());</span>
+    }
+
+
+
+    public void markAsCompleted() {
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">        if (selectedFolder != null) {</span>
+<span class="fc" id="L355">            selectedFolder.setNavigation(FolderNavigation.TERMINE);</span>
+<span class="fc" id="L356">            folderService.updateFolder(selectedFolder);</span>
+
+<span class="fc" id="L358">            FolderAction action = new FolderAction();</span>
+<span class="fc" id="L359">            action.setFolder(selectedFolder);</span>
+<span class="fc" id="L360">            action.setUser(userController.getCurrentUser());</span>
+<span class="fc" id="L361">            action.setComment(&quot;📦 Dossier marqué comme terminé.&quot;);</span>
+<span class="fc" id="L362">            action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L363">            folderActionService.saveAction(action);</span>
+
+            // ✅ Notify the director
+<span class="fc" id="L366">            User director = selectedFolder.getCreatedBy().getAgency().getDirector();</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">            if (director != null) {</span>
+<span class="fc" id="L368">                Alert alert = new Alert();</span>
+<span class="fc" id="L369">                alert.setTargetUser(director);</span>
+<span class="fc" id="L370">                alert.setMessage(&quot;📦 Le chargé &quot; + userController.getCurrentUser().getUsername() +</span>
+<span class="fc" id="L371">                                 &quot; a marqué le dossier &quot; + selectedFolder.getReference() + &quot; comme terminé.&quot;);</span>
+<span class="fc" id="L372">                alertService.createAlert(alert);</span>
+            }
+
+<span class="fc" id="L375">            creationMessage = &quot;📁 Le dossier a été marqué comme terminé.&quot;;</span>
+<span class="fc" id="L376">            newComment = &quot;&quot;;</span>
+<span class="fc" id="L377">            selectedFolder = null; // reset view</span>
+<span class="fc" id="L378">            loadFoldersForCurrentUser(); // refresh list to remove completed ones</span>
+        }
+<span class="fc" id="L380">    }</span>
+
+
+
+    public String createFolderAndProfileAndDemande() {
+<span class="fc" id="L385">        User currentUser = userController.getCurrentUser();</span>
+<span class="fc bfc" id="L386" title="All 2 branches covered.">        if (currentUser == null) {</span>
+<span class="fc" id="L387">            creationMessage = &quot;Erreur : Aucun utilisateur connecté.&quot;;</span>
+<span class="fc" id="L388">            return null;</span>
+        }
+
+        try {
+            // === Step 1: Create and Save the Folder ===
+<span class="fc" id="L393">            Folder folder = new Folder();</span>
+<span class="fc" id="L394">            folder.setReference(reference);</span>
+<span class="fc" id="L395">            folder.setDescription(description);</span>
+<span class="fc" id="L396">            folder.setClient(client);</span>
+<span class="fc" id="L397">            folder.setNavigation(FolderNavigation.CREE_PAR_CHARGE);</span>
+<span class="fc" id="L398">            folder.setCreatedDate(LocalDate.now());</span>
+<span class="fc" id="L399">            folder.setCreatedBy(currentUser);</span>
+
+            // 🧩 Fill Folder credit simulation data
+<span class="fc" id="L402">            folder.setRevenuMensuel(revenuMensuel);</span>
+<span class="fc" id="L403">            folder.setMontantDemande(montantDemande);</span>
+<span class="fc" id="L404">            folder.setDureeMois(dureeMois);</span>
+<span class="fc" id="L405">            folder.setTauxAnnuel(tauxAnnuel);</span>
+
+<span class="fc" id="L407">            folderService.createFolder(folder); // ✅ Save Folder</span>
+
+            // === Step 2: Create and Save ClientProfile ===
+<span class="fc" id="L410">            clientProfileController.getClientProfile().setFolder(folder);</span>
+<span class="fc" id="L411">            clientProfileController.saveProfile(); // ensures update logic is respected</span>
+
+
+            // === Step 3: Create and Save DemandeCredit ===
+<span class="fc" id="L415">            DemandeCredit demandeCredit = new DemandeCredit();</span>
+<span class="fc" id="L416">            demandeCredit.setFolder(folder);</span>
+
+            // You can leave mensualiteEstimee, tauxEndettement, tauxEndettementAvant null at first
+            // They will be calculated later when you simulate
+<span class="fc" id="L420">            demandeCreditService.save(demandeCredit); // ✅ Save DemandeCredit</span>
+
+            // === Step 4: Notify Director ===
+<span class="fc" id="L423">            User director = currentUser.getAgency().getDirector();</span>
+<span class="pc bpc" id="L424" title="1 of 2 branches missed.">            if (director != null) {</span>
+<span class="fc" id="L425">                Alert alert = new Alert();</span>
+<span class="fc" id="L426">                alert.setTargetUser(director);</span>
+<span class="fc" id="L427">                alert.setMessage(&quot;📁 Un nouveau dossier a été créé par le chargé &quot; + currentUser.getUsername());</span>
+<span class="fc" id="L428">                alertService.createAlert(alert);</span>
+            }
+
+<span class="fc" id="L431">            creationMessage = &quot;✅ Dossier, Profil Client, et Demande de Crédit créés avec succès.&quot;;</span>
+<span class="fc" id="L432">            clearForm(); // clean form fields</span>
+<span class="fc" id="L433">            return &quot;officer_dashboard.xhtml?faces-redirect=true&quot;;</span>
+
+<span class="nc" id="L435">        } catch (Exception e) {</span>
+<span class="nc" id="L436">            creationMessage = &quot;❌ Erreur lors de la création du dossier: &quot; + e.getMessage();</span>
+<span class="nc" id="L437">            e.printStackTrace();</span>
+<span class="nc" id="L438">            return null;</span>
+        }
+    }
+
+    
+    public void reloadSelectedFolder() {
+<span class="pc bpc" id="L444" title="1 of 2 branches missed.">        if (selectedFolder != null) {</span>
+<span class="fc" id="L445">            selectedFolder = folderService.findById(selectedFolder.getId());</span>
+        }
+<span class="fc" id="L447">    }</span>
+
+
+    private void clearForm() {
+<span class="fc" id="L451">        reference = &quot;&quot;;</span>
+<span class="fc" id="L452">        description = &quot;&quot;;</span>
+<span class="fc" id="L453">        client = &quot;&quot;;</span>
+<span class="fc" id="L454">        revenuMensuel = null;</span>
+<span class="fc" id="L455">        montantDemande = null;</span>
+<span class="fc" id="L456">        dureeMois = null;</span>
+<span class="fc" id="L457">        tauxAnnuel = null;</span>
+<span class="fc" id="L458">    }</span>
+
+
+
+    public void selectFolder(Folder folder) {
+<span class="nc bnc" id="L463" title="All 2 branches missed.">        if (folder == null) {</span>
+<span class="nc" id="L464">            System.out.println(&quot;⚠️ [selectFolder] Called with null folder&quot;);</span>
+<span class="nc" id="L465">            return;</span>
+        }
+
+<span class="nc" id="L468">        System.out.println(&quot;✅ [selectFolder] ID: &quot; + folder.getId() + &quot; | Ref: &quot; + folder.getReference());</span>
+
+<span class="nc bnc" id="L470" title="All 6 branches missed.">        if (this.selectedFolder != null &amp;&amp; folder.getId() != null &amp;&amp; folder.getId().equals(this.selectedFolder.getId())) {</span>
+<span class="nc" id="L471">            this.selectedFolder = null;</span>
+<span class="nc" id="L472">            System.out.println(&quot;🔁 Deselected folder.&quot;);</span>
+        } else {
+<span class="nc" id="L474">            this.selectedFolder = folder;</span>
+<span class="nc" id="L475">            System.out.println(&quot;🎯 Selected folder updated.&quot;);</span>
+<span class="nc" id="L476">            clientProfileController.loadProfile();</span>
+        }
+<span class="nc" id="L478">    }</span>
+
+    
+    public void sendToResponsableAnalyste() {
+<span class="pc bpc" id="L482" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L484">        User analyst = userController.getCurrentUser();</span>
+<span class="fc" id="L485">        User responsable = userService.getGlobalResponsibleAnalyst();</span>
+        // Save action with comment
+<span class="fc" id="L487">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L488">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L489">        action.setUser(analyst);</span>
+<span class="fc" id="L490">        action.setComment(&quot;envoyé a &quot;+responsable.getFirstName()+&quot; &quot;+responsable.getLastName()+&quot; : &quot; + newComment);</span>
+<span class="fc" id="L491">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L492">        folderActionService.saveAction(action);</span>
+
+        // Update folder navigation
+<span class="fc" id="L495">        selectedFolder.setNavigation(FolderNavigation.ENVOYE_AU_RESPONSABLE_ANALYSTE);</span>
+<span class="fc" id="L496">        folderService.updateFolder(selectedFolder);</span>
+
+        // Notify Responsable Analyste (we assume only one in the system)
+         // Implement this in your UserService
+<span class="pc bpc" id="L500" title="1 of 2 branches missed.">        if (responsable != null) {</span>
+<span class="fc" id="L501">            Alert alert = new Alert();</span>
+<span class="fc" id="L502">            alert.setTargetUser(responsable);</span>
+<span class="fc" id="L503">            alert.setMessage(&quot;📤 Le dossier '&quot; + selectedFolder.getReference() + &quot;' a été transmis par l’analyste &quot; + analyst.getUsername());</span>
+<span class="fc" id="L504">            alertService.createAlert(alert);</span>
+        }
+
+<span class="fc" id="L507">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L508">        creationMessage = &quot;✅ Dossier transmis au Responsable Analyste.&quot;;</span>
+<span class="fc" id="L509">        System.out.println(&quot;📤 Dossier transmis à Responsable Analyste.&quot;);</span>
+<span class="fc" id="L510">    }</span>
+    
+    
+    public void sendToDirectorCIC() {
+<span class="pc bpc" id="L514" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L516">        User analyst = userController.getCurrentUser();</span>
+<span class="fc" id="L517">        User responsable = userService.getGlobalDirectorCIC();</span>
+        // Save action with comment
+<span class="fc" id="L519">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L520">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L521">        action.setUser(analyst);</span>
+<span class="fc" id="L522">        action.setComment(&quot;envoyé a &quot;+responsable.getFirstName()+&quot; &quot;+responsable.getLastName()+&quot; : &quot; + newComment);</span>
+<span class="fc" id="L523">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L524">        folderActionService.saveAction(action);</span>
+
+        // Update folder navigation
+<span class="fc" id="L527">        selectedFolder.setNavigation(FolderNavigation.ENVOYE_AU_DIRECTEUR_CIC);</span>
+<span class="fc" id="L528">        folderService.updateFolder(selectedFolder);</span>
+
+        
+<span class="pc bpc" id="L531" title="1 of 2 branches missed.">        if (responsable != null) {</span>
+<span class="fc" id="L532">            Alert alert = new Alert();</span>
+<span class="fc" id="L533">            alert.setTargetUser(responsable);</span>
+<span class="fc" id="L534">            alert.setMessage(&quot;📤 Le dossier '&quot; + selectedFolder.getReference() + &quot;' a été transmis par l’analyste cic &quot; + analyst.getUsername());</span>
+<span class="fc" id="L535">            alertService.createAlert(alert);</span>
+        }
+
+<span class="fc" id="L538">        newComment = &quot;&quot;;</span>
+        
+<span class="fc" id="L540">    }</span>
+    public void sendToDirectorEngagement() {
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L544">        User responsable = userController.getCurrentUser();</span>
+<span class="fc" id="L545">        User directorEngagement = userService.getGlobalDirectorENG(); // ⬅️ using your existing method</span>
+
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">        if (directorEngagement == null) {</span>
+<span class="nc" id="L548">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Directeur Engagement introuvable&quot;, null));
+<span class="nc" id="L550">            return;</span>
+        }
+
+        // Save folder action
+<span class="fc" id="L554">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L555">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L556">        action.setUser(responsable);</span>
+<span class="fc" id="L557">        action.setComment(&quot;📤 Envoyé a &quot;+directorEngagement.getFirstName()+&quot; &quot;+directorEngagement.getLastName()+&quot; : &quot; + newComment);</span>
+<span class="fc" id="L558">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L559">        folderActionService.saveAction(action);</span>
+
+        // Update navigation
+<span class="fc" id="L562">        selectedFolder.setNavigation(FolderNavigation.ENVOYE_AU_DIRECTEUR_ENGAGEMENT);</span>
+<span class="fc" id="L563">        folderService.updateFolder(selectedFolder);</span>
+
+        // Notify director engagement
+<span class="fc" id="L566">        Alert alert = new Alert();</span>
+<span class="fc" id="L567">        alert.setTargetUser(directorEngagement);</span>
+<span class="fc" id="L568">        alert.setMessage(&quot;📩 Nouveau dossier '&quot; + selectedFolder.getReference() + &quot;' transmis par &quot; + responsable.getUsername());</span>
+<span class="fc" id="L569">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L571">        creationMessage = &quot;✅ Dossier envoyé au Directeur Engagement.&quot;;</span>
+<span class="fc" id="L572">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L573">    }</span>
+
+    
+    public void returnOfferToDirector() {
+<span class="pc bpc" id="L577" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L579">        User responsable = userController.getCurrentUser();</span>
+<span class="fc" id="L580">        User director = selectedFolder.getCreatedBy().getAgency().getDirector();</span>
+
+<span class="pc bpc" id="L582" title="1 of 2 branches missed.">        if (director == null) {</span>
+<span class="nc" id="L583">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Directeur introuvable.&quot;, null));
+<span class="nc" id="L585">            return;</span>
+        }
+
+        // Save action
+<span class="fc" id="L589">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L590">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L591">        action.setUser(responsable);</span>
+<span class="fc" id="L592">        action.setComment(&quot;Retour Offre au DA &quot;+director.getFirstName()+&quot; &quot;+director.getLastName()+&quot; : &quot; + newComment);</span>
+<span class="fc" id="L593">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L594">        folderActionService.saveAction(action);</span>
+
+        // Update folder status
+<span class="fc" id="L597">        selectedFolder.setNavigation(FolderNavigation.RETOUR_OFFRE);</span>
+<span class="fc" id="L598">        folderService.updateFolder(selectedFolder);</span>
+
+        // Notify director
+<span class="fc" id="L601">        Alert alert = new Alert();</span>
+<span class="fc" id="L602">        alert.setTargetUser(director);</span>
+<span class="fc" id="L603">        alert.setMessage(&quot;📤 Le Responsable Analyste &quot; + responsable.getUsername()</span>
+<span class="fc" id="L604">            + &quot; a retourné le dossier '&quot; + selectedFolder.getReference() + &quot;' pour décision finale.&quot;);</span>
+<span class="fc" id="L605">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L607">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L608">        creationMessage = &quot;✅ Dossier retourné au Directeur pour offre finale.&quot;;</span>
+<span class="fc" id="L609">        System.out.println(&quot;📤 Dossier '&quot; + selectedFolder.getReference() + &quot;' retourné au Directeur par le Responsable Analyste.&quot;);</span>
+<span class="fc" id="L610">    }</span>
+
+
+
+
+    public void sendToDirector() {
+<span class="fc" id="L616">        User currentUser = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L617" title="2 of 4 branches missed.">        if (selectedFolder == null || currentUser == null) return;</span>
+
+<span class="fc" id="L619">        User director = selectedFolder.getCreatedBy().getAgency().getDirector();</span>
+<span class="pc bpc" id="L620" title="1 of 2 branches missed.">        if (director == null) {</span>
+<span class="nc" id="L621">            creationMessage = &quot;❌ Impossible de trouver le directeur de l'agence.&quot;;</span>
+<span class="nc" id="L622">            return;</span>
+        }
+
+        // Save action
+<span class="fc" id="L626">        FolderAction action = new FolderAction(selectedFolder, currentUser, &quot;↩️ enovyee au directeur Agence: &quot; + newComment);</span>
+<span class="fc" id="L627">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L628">        action.setUser(currentUser);</span>
+<span class="fc" id="L629">        action.setComment(&quot;envoye a &quot; + director.getFirstName()+&quot; &quot;+ director.getLastName()+&quot; : &quot;+newComment);</span>
+<span class="fc" id="L630">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L631">        folderActionService.saveAction(action);</span>
+
+        // Update folder state
+<span class="fc" id="L634">        selectedFolder.setNavigation(FolderNavigation.ENVOYE_AU_DIRECTEUR);</span>
+<span class="fc" id="L635">        folderService.updateFolder(selectedFolder);</span>
+
+        // Create alert for the director
+<span class="fc" id="L638">        Alert alert = new Alert();</span>
+<span class="fc" id="L639">        alert.setTargetUser(director);</span>
+<span class="fc" id="L640">        alert.setMessage(&quot;📤 Le dossier '&quot; + selectedFolder.getReference() + &quot;' a été transmis par le chargé &quot; + currentUser.getUsername());</span>
+<span class="fc" id="L641">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L643">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L644">        creationMessage = &quot;✅ Dossier transmis au directeur de l'agence : &quot; + director.getUsername();</span>
+<span class="fc" id="L645">        System.out.println(&quot;📤 Folder from &quot; + currentUser.getUsername() + &quot; sent to director: &quot; + director.getUsername());</span>
+<span class="fc" id="L646">    }</span>
+
+    public void loadFoldersForDirector() {
+<span class="fc" id="L649">        User currentDirector = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L650" title="2 of 4 branches missed.">        if (currentDirector != null &amp;&amp; currentDirector.getRole() == Role.DIRECTEUR_AGENCE) {</span>
+<span class="nc" id="L651">            myFolders = folderService.getFoldersForDirector(currentDirector);</span>
+<span class="nc" id="L652">            System.out.println(&quot;📥 Folders loaded for Director: &quot; + currentDirector.getUsername());</span>
+        }
+<span class="fc" id="L654">    }</span>
+
+
+    public void approveFolder() {
+<span class="pc bpc" id="L658" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L660">        User director = userController.getCurrentUser();</span>
+<span class="fc" id="L661">        User officer = selectedFolder.getCreatedBy();</span>
+
+<span class="fc" id="L663">        FolderAction action = new FolderAction(selectedFolder, director, &quot; Approuvé par &quot;+director.getFirstName()+&quot; &quot;+director.getLastName()</span>
+        +&quot;: &quot;+ newComment);
+<span class="fc" id="L665">        folderActionService.saveAction(action);</span>
+
+<span class="fc" id="L667">        selectedFolder.setNavigation(FolderNavigation.APPROUVE_PAR_DIRECTEUR);</span>
+<span class="fc" id="L668">        folderService.updateFolder(selectedFolder);</span>
+
+        // Alert to officer
+<span class="fc" id="L671">        Alert alert = new Alert();</span>
+<span class="fc" id="L672">        alert.setTargetUser(officer);</span>
+<span class="fc" id="L673">        alert.setMessage(&quot;✅ Votre dossier '&quot; + selectedFolder.getReference() + &quot;' a été approuvé par le directeur &quot; + director.getUsername());</span>
+<span class="fc" id="L674">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L676">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L677">        creationMessage = &quot;✅ Le dossier a été approuvé.&quot;;</span>
+<span class="fc" id="L678">    }</span>
+
+
+    public void rejectFolder() {
+<span class="pc bpc" id="L682" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L684">        User director = userController.getCurrentUser();</span>
+<span class="fc" id="L685">        User officer = selectedFolder.getCreatedBy();</span>
+
+<span class="fc" id="L687">        FolderAction action = new FolderAction(selectedFolder, director, &quot; Rejeté par  &quot; +director.getFirstName()+&quot; &quot;+director.getLastName()</span>
+        +&quot;: &quot;+ newComment);
+<span class="fc" id="L689">        folderActionService.saveAction(action);</span>
+
+<span class="fc" id="L691">        selectedFolder.setNavigation(FolderNavigation.REJETE_PAR_DIRECTEUR);</span>
+<span class="fc" id="L692">        folderService.updateFolder(selectedFolder);</span>
+
+        // Alert to officer
+<span class="fc" id="L695">        Alert alert = new Alert();</span>
+<span class="fc" id="L696">        alert.setTargetUser(officer);</span>
+<span class="fc" id="L697">        alert.setMessage(&quot;❌ Votre dossier '&quot; + selectedFolder.getReference() + &quot;' a été rejeté par le directeur &quot; + director.getUsername());</span>
+<span class="fc" id="L698">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L700">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L701">        creationMessage = &quot;❌ Le dossier a été rejeté.&quot;;</span>
+<span class="fc" id="L702">    }</span>
+
+
+    public void returnToOfficer() {
+<span class="pc bpc" id="L706" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L708">        User currentUser = userController.getCurrentUser(); // the director</span>
+<span class="fc" id="L709">        User officer = selectedFolder.getCreatedBy();</span>
+
+        // Save action
+<span class="fc" id="L712">        FolderAction action = new FolderAction(selectedFolder, currentUser, &quot; Retourné a &quot; +officer.getFirstName()+&quot; &quot;+officer.getLastName() </span>
+        +&quot;: &quot;+ newComment);
+<span class="fc" id="L714">        folderActionService.saveAction(action);</span>
+
+        // Update folder state
+<span class="fc" id="L717">        selectedFolder.setNavigation(FolderNavigation.RETOURNE_AU_CHARGE);</span>
+<span class="fc" id="L718">        folderService.updateFolder(selectedFolder);</span>
+
+        // Send alert to the officer
+<span class="fc" id="L721">        Alert alert = new Alert();</span>
+<span class="fc" id="L722">        alert.setTargetUser(officer);</span>
+<span class="fc" id="L723">        alert.setMessage(&quot;↩️ Le dossier '&quot; + selectedFolder.getReference() + &quot;' vous a été retourné par le directeur &quot; + currentUser.getUsername());</span>
+<span class="fc" id="L724">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L726">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L727">        creationMessage = &quot;🔁 Le dossier a été retourné au chargé.&quot;;</span>
+<span class="fc" id="L728">    }</span>
+
+    public void returnToChargeFromAnalyst() {
+<span class="pc bpc" id="L731" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L733">        User analyst = userController.getCurrentUser();</span>
+<span class="fc" id="L734">        User officer = selectedFolder.getCreatedBy();</span>
+
+        // Save the action
+<span class="fc" id="L737">        FolderAction action = new FolderAction(selectedFolder, analyst, &quot;Retourné au &quot;+officer.getFirstName()+&quot; &quot;+officer.getLastName()</span>
+        		+&quot; par l’analyste ENG: &quot; + newComment);
+<span class="fc" id="L739">        folderActionService.saveAction(action);</span>
+
+        // Update folder status
+<span class="fc" id="L742">        selectedFolder.setNavigation(FolderNavigation.RETOURNE_DE_Analyste);</span>
+<span class="fc" id="L743">        folderService.updateFolder(selectedFolder);</span>
+
+        // Notify the officer
+<span class="fc" id="L746">        Alert alert = new Alert();</span>
+<span class="fc" id="L747">        alert.setTargetUser(officer);</span>
+<span class="fc" id="L748">        alert.setMessage(&quot;↩️ Le dossier '&quot; + selectedFolder.getReference() + &quot;' a été retourné par l’analyste &quot; + analyst.getUsername());</span>
+<span class="fc" id="L749">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L751">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L752">        creationMessage = &quot;✅ Dossier retourné au chargé d’agence.&quot;;</span>
+<span class="fc" id="L753">    }</span>
+    
+    public void returnToChargeFromAnalystCIC() {
+<span class="pc bpc" id="L756" title="1 of 2 branches missed.">    	if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L758">        User analyst = userController.getCurrentUser();</span>
+<span class="fc" id="L759">        User officer = selectedFolder.getCreatedBy();</span>
+
+        // Save the action
+<span class="fc" id="L762">        FolderAction action = new FolderAction(selectedFolder, analyst, &quot;Retourné au &quot;+officer.getFirstName()+&quot; &quot;+officer.getLastName()</span>
+		+&quot; par l’analyste CIC: &quot; + newComment);
+<span class="fc" id="L764">        folderActionService.saveAction(action);</span>
+
+        // Update folder status
+<span class="fc" id="L767">        selectedFolder.setNavigation(FolderNavigation.RETOURNE_DE_AnalysteCIC);</span>
+<span class="fc" id="L768">        folderService.updateFolder(selectedFolder);</span>
+
+        // Notify the officer
+<span class="fc" id="L771">        Alert alert = new Alert();</span>
+<span class="fc" id="L772">        alert.setTargetUser(officer);</span>
+<span class="fc" id="L773">        alert.setMessage(&quot;↩️ Le dossier '&quot; + selectedFolder.getReference() + &quot;' a été retourné par l’analyste &quot; + analyst.getUsername());</span>
+<span class="fc" id="L774">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L776">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L777">        creationMessage = &quot;✅ Dossier retourné au chargé d’agence.&quot;;</span>
+    	
+<span class="fc" id="L779">    }</span>
+
+    public void sendToAnalystAgain() {
+<span class="fc" id="L782">        User currentUser = userController.getCurrentUser();</span>
+
+     // Get analyst from current user's agency
+<span class="fc" id="L785">        User analyst = selectedFolder.getAssignedTo();</span>
+<span class="pc bpc" id="L786" title="1 of 2 branches missed.">        if (analyst == null) {</span>
+<span class="nc" id="L787">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Aucun analyste assigné par défaut.&quot;, null));
+<span class="nc" id="L789">            return;</span>
+        }
+
+        // Save action
+<span class="fc" id="L793">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L794">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L795">        action.setUser(currentUser);</span>
+<span class="fc" id="L796">        action.setComment(&quot;renvoyé à  &quot;+analyst.getFirstName()+&quot; &quot;+analyst.getLastName()+&quot;: &quot;+ newComment);</span>
+<span class="fc" id="L797">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L798">        folderActionService.saveAction(action);</span>
+
+        // Update folder status
+<span class="fc" id="L801">        selectedFolder.setNavigation(FolderNavigation.ASSIGNE_A_ANALYSTE);</span>
+<span class="fc" id="L802">        folderService.updateFolder(selectedFolder);</span>
+
+        // Notify analyst
+<span class="fc" id="L805">        Alert alert = new Alert();</span>
+<span class="fc" id="L806">        alert.setTargetUser(analyst);</span>
+<span class="fc" id="L807">        alert.setMessage(&quot;📥 Le dossier '&quot; + selectedFolder.getReference() + &quot;' vous a été renvoyé pour analyse par &quot; + currentUser.getUsername());</span>
+<span class="fc" id="L808">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L810">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L811">        creationMessage = &quot;✅ Dossier renvoyé à l’analyste : &quot; + analyst.getUsername();</span>
+<span class="fc" id="L812">        System.out.println(&quot;📤 Folder '&quot; + selectedFolder.getReference() + &quot;' renvoyé à l’analyste &quot; + analyst.getUsername() + &quot; par &quot; + currentUser.getUsername());</span>
+<span class="fc" id="L813">    }</span>
+    public void sendToAnalystCICAgain() {
+<span class="fc" id="L815">        User currentUser = userController.getCurrentUser();</span>
+
+     // Get analyst from current user's agency
+<span class="fc" id="L818">        User analyst = selectedFolder.getAssignedCIC();</span>
+<span class="pc bpc" id="L819" title="1 of 2 branches missed.">        if (analyst == null) {</span>
+<span class="nc" id="L820">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Aucun analyste assigné par défaut.&quot;, null));
+<span class="nc" id="L822">            return;</span>
+        }
+
+        // Save action
+<span class="fc" id="L826">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L827">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L828">        action.setUser(currentUser);</span>
+<span class="fc" id="L829">        action.setComment(&quot;renvoyé à &quot;+analyst.getFirstName()+analyst.getLastName()+&quot;: &quot;+newComment);</span>
+<span class="fc" id="L830">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L831">        folderActionService.saveAction(action);</span>
+
+        // Update folder status
+<span class="fc" id="L834">        selectedFolder.setNavigation(FolderNavigation.ASSIGNE_A_ANALYSTECIC);</span>
+<span class="fc" id="L835">        folderService.updateFolder(selectedFolder);</span>
+
+        // Notify analyst
+<span class="fc" id="L838">        Alert alert = new Alert();</span>
+<span class="fc" id="L839">        alert.setTargetUser(analyst);</span>
+<span class="fc" id="L840">        alert.setMessage(&quot;📥 Le dossier '&quot; + selectedFolder.getReference() + &quot;' vous a été renvoyé pour analyse CIC par &quot; + currentUser.getUsername());</span>
+<span class="fc" id="L841">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L843">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L844">        creationMessage = &quot;✅ Dossier renvoyé à l’analyste : &quot; + analyst.getUsername();</span>
+<span class="fc" id="L845">        System.out.println(&quot;📤 Folder '&quot; + selectedFolder.getReference() + &quot;' renvoyé à l’analyste &quot; + analyst.getUsername() + &quot; par &quot; + currentUser.getUsername());</span>
+<span class="fc" id="L846">    }</span>
+
+
+    public List&lt;FolderAction&gt; getActionsForSelectedFolder() {
+<span class="pc bpc" id="L850" title="1 of 2 branches missed.">        if (selectedFolder == null) return List.of();</span>
+
+<span class="fc" id="L852">        return folderActionService.getActionsByFolder(selectedFolder).stream()</span>
+<span class="fc" id="L853">                .sorted(Comparator.comparing(FolderAction::getId)) // oldest to newest</span>
+<span class="fc" id="L854">                .collect(Collectors.toList());</span>
+    }
+
+    public void validateDirectly() {
+<span class="pc bpc" id="L858" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L860">        User director = userController.getCurrentUser();</span>
+<span class="fc" id="L861">        User officer = selectedFolder.getCreatedBy();</span>
+
+<span class="fc" id="L863">        selectedFolder.setNavigation(FolderNavigation.APPROUVE_PAR_DIRECTEUR);</span>
+<span class="fc" id="L864">        folderService.updateFolder(selectedFolder);</span>
+
+<span class="fc" id="L866">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L867">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L868">        action.setUser(director);</span>
+<span class="fc" id="L869">        action.setComment(&quot;Validation directe par  &quot;+director.getFirstName()+&quot; &quot;+director.getLastName()+&quot;: &quot; + newComment);</span>
+<span class="fc" id="L870">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L871">        folderActionService.saveAction(action);</span>
+
+        // Alert to officer
+<span class="fc" id="L874">        Alert alert = new Alert();</span>
+<span class="fc" id="L875">        alert.setTargetUser(officer);</span>
+<span class="fc" id="L876">        alert.setMessage(&quot;✅ Le directeur &quot; + director.getUsername() + &quot; a validé directement le dossier '&quot; + selectedFolder.getReference() + &quot;'.&quot;);</span>
+<span class="fc" id="L877">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L879">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L880">        creationMessage = &quot;✅ Dossier validé directement et marqué comme terminé.&quot;;</span>
+<span class="fc" id="L881">        selectedFolder = null;</span>
+<span class="fc" id="L882">        loadFoldersForDirector();</span>
+<span class="fc" id="L883">    }</span>
+
+
+    public void rejectDirectly() {
+<span class="pc bpc" id="L887" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L889">        User director = userController.getCurrentUser();</span>
+<span class="fc" id="L890">        User officer = selectedFolder.getCreatedBy();</span>
+
+<span class="fc" id="L892">        selectedFolder.setNavigation(FolderNavigation.REJETE_PAR_DIRECTEUR);</span>
+<span class="fc" id="L893">        folderService.updateFolder(selectedFolder);</span>
+
+<span class="fc" id="L895">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L896">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L897">        action.setUser(director);</span>
+<span class="fc" id="L898">        action.setComment(&quot;Rejet direct par &quot;+director.getFirstName()+&quot; &quot;+director.getLastName()</span>
+        +&quot;: &quot;+ newComment);
+<span class="fc" id="L900">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L901">        folderActionService.saveAction(action);</span>
+
+        // Alert to officer
+<span class="fc" id="L904">        Alert alert = new Alert();</span>
+<span class="fc" id="L905">        alert.setTargetUser(officer);</span>
+<span class="fc" id="L906">        alert.setMessage(&quot;❌ Le directeur &quot; + director.getUsername() + &quot; a rejeté directement le dossier '&quot; + selectedFolder.getReference() + &quot;'.&quot;);</span>
+<span class="fc" id="L907">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L909">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L910">        creationMessage = &quot;❌ Dossier rejeté directement et marqué comme terminé.&quot;;</span>
+<span class="fc" id="L911">        selectedFolder = null;</span>
+<span class="fc" id="L912">        loadFoldersForDirector();</span>
+<span class="fc" id="L913">    }</span>
+    
+    public void assignToAnalyst() {
+<span class="fc" id="L916">        User currentUser = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L917" title="2 of 4 branches missed.">        if (selectedFolder == null || currentUser == null) return;</span>
+
+     // Get analyst from current user's agency
+<span class="fc" id="L920">        User defaultAnalyst = selectedFolder.getCreatedBy().getAgency().getDefaultAnalyst();</span>
+<span class="pc bpc" id="L921" title="1 of 2 branches missed.">        if (defaultAnalyst == null) {</span>
+<span class="nc" id="L922">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Aucun analyste assigné à votre agence.&quot;, null));
+<span class="nc" id="L924">            return;</span>
+        }
+        
+
+<span class="fc" id="L928">        selectedFolder.setAssignedTo(defaultAnalyst);</span>
+
+        // Save action
+<span class="fc" id="L931">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L932">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L933">        action.setUser(currentUser);</span>
+<span class="fc" id="L934">        action.setComment(&quot;envoyé à l’analyste ENG: &quot; + defaultAnalyst.getFirstName()+&quot; &quot; + defaultAnalyst.getLastName()</span>
+<span class="pc bpc" id="L935" title="2 of 4 branches missed.">                          + (newComment != null &amp;&amp; !newComment.isEmpty() ? &quot; : &quot; + newComment : &quot;&quot;));</span>
+<span class="fc" id="L936">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L937">        folderActionService.saveAction(action);</span>
+
+        // Set status and update
+<span class="fc" id="L940">        selectedFolder.setNavigation(FolderNavigation.ASSIGNE_A_ANALYSTE);</span>
+<span class="fc" id="L941">        folderService.updateFolder(selectedFolder);</span>
+
+        // Alert to analyst
+<span class="fc" id="L944">        Alert alert = new Alert();</span>
+<span class="fc" id="L945">        alert.setTargetUser(defaultAnalyst);</span>
+<span class="fc" id="L946">        alert.setMessage(&quot;📥 Dossier envoyé avec commentaire : &quot; + selectedFolder.getReference());</span>
+<span class="fc" id="L947">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L949">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L950">        FacesContext.getCurrentInstance().addMessage(null,</span>
+            new FacesMessage(FacesMessage.SEVERITY_INFO, &quot;✅ Dossier envoyé à l'analyste.&quot;, null));
+<span class="fc" id="L952">    }</span>
+    
+    public void assignToCICAnalyst() {
+<span class="fc" id="L955">    	User currentUser = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L956" title="2 of 4 branches missed.">        if (selectedFolder == null || currentUser == null) return;</span>
+
+     // Get analyst from current user's agency
+<span class="fc" id="L959">        User defaultAnalyst = selectedFolder.getCreatedBy().getAgency().getCICAnalyst();</span>
+<span class="pc bpc" id="L960" title="1 of 2 branches missed.">        if (defaultAnalyst == null) {</span>
+<span class="nc" id="L961">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Aucun analyste assigné à votre agence.&quot;, null));
+<span class="nc" id="L963">            return;</span>
+        }
+        
+<span class="fc" id="L966">        selectedFolder.setAssignedCIC(defaultAnalyst);</span>
+
+        // Save action
+<span class="fc" id="L969">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L970">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L971">        action.setUser(currentUser);</span>
+<span class="fc" id="L972">        action.setComment(&quot;envoyé à l’analyste CIC: &quot; + defaultAnalyst.getFirstName()+&quot; &quot; + defaultAnalyst.getLastName()+&quot; :&quot;</span>
+<span class="pc bpc" id="L973" title="2 of 4 branches missed.">                          + (newComment != null &amp;&amp; !newComment.isEmpty() ? &quot; : &quot; + newComment : &quot;&quot;));</span>
+<span class="fc" id="L974">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L975">        folderActionService.saveAction(action);</span>
+
+        // Set status and update
+<span class="fc" id="L978">        selectedFolder.setNavigation(FolderNavigation.ASSIGNE_A_ANALYSTECIC);</span>
+<span class="fc" id="L979">        folderService.updateFolder(selectedFolder);</span>
+
+        // Alert to analyst
+<span class="fc" id="L982">        Alert alert = new Alert();</span>
+<span class="fc" id="L983">        alert.setTargetUser(defaultAnalyst);</span>
+<span class="fc" id="L984">        alert.setMessage(&quot;📥 Dossier envoyé avec commentaire : &quot; + selectedFolder.getReference());</span>
+<span class="fc" id="L985">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L987">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L988">        FacesContext.getCurrentInstance().addMessage(null,</span>
+            new FacesMessage(FacesMessage.SEVERITY_INFO, &quot;✅ Dossier envoyé à l'analyste.&quot;, null));
+    	
+<span class="fc" id="L991">    }</span>
+    
+    public void assignToAnalystbySuc() {
+<span class="fc" id="L994">        User currentUser = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L995" title="2 of 4 branches missed.">        if (selectedFolder == null || currentUser == null) return;</span>
+
+        // Get the agency of the user who originally created the folder
+<span class="fc" id="L998">        User folderCreator = selectedFolder.getCreatedBy();</span>
+<span class="pc bpc" id="L999" title="2 of 4 branches missed.">        if (folderCreator == null || folderCreator.getAgency() == null) {</span>
+<span class="nc" id="L1000">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Impossible d’identifier l’agence d’origine du dossier.&quot;, null));
+<span class="nc" id="L1002">            return;</span>
+        }
+
+<span class="fc" id="L1005">        Agency originAgency = folderCreator.getAgency();</span>
+<span class="fc" id="L1006">        User defaultAnalyst = originAgency.getDefaultAnalyst();</span>
+
+<span class="pc bpc" id="L1008" title="1 of 2 branches missed.">        if (defaultAnalyst == null) {</span>
+<span class="nc" id="L1009">            FacesContext.getCurrentInstance().addMessage(null,</span>
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, &quot;❌ Aucun analyste défini pour l’agence d’origine.&quot;, null));
+<span class="nc" id="L1011">            return;</span>
+        }
+
+        // Assign folder to analyst from origin agency
+<span class="fc" id="L1015">        selectedFolder.setAssignedTo(defaultAnalyst);</span>
+
+        // Save folder action
+<span class="fc" id="L1018">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L1019">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L1020">        action.setUser(currentUser);</span>
+<span class="fc" id="L1021">        action.setComment(&quot; envoyé à &quot; + defaultAnalyst.getFirstName()+&quot; &quot;+defaultAnalyst.getLastName()+&quot; : &quot;</span>
+<span class="pc bpc" id="L1022" title="2 of 4 branches missed.">                          + (newComment != null &amp;&amp; !newComment.isEmpty() ? &quot; : &quot; + newComment : &quot;&quot;));</span>
+<span class="fc" id="L1023">        action.setActionDate(LocalDate.now());</span>
+<span class="fc" id="L1024">        folderActionService.saveAction(action);</span>
+
+        // Update navigation
+<span class="fc" id="L1027">        selectedFolder.setNavigation(FolderNavigation.ASSIGNE_A_ANALYSTE);</span>
+<span class="fc" id="L1028">        folderService.updateFolder(selectedFolder);</span>
+
+        // Send alert to analyst
+<span class="fc" id="L1031">        Alert alert = new Alert();</span>
+<span class="fc" id="L1032">        alert.setTargetUser(defaultAnalyst);</span>
+<span class="fc" id="L1033">        alert.setMessage(&quot;📥 Nouveau dossier reçu: &quot; + selectedFolder.getReference());</span>
+<span class="fc" id="L1034">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L1036">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L1037">        FacesContext.getCurrentInstance().addMessage(null,</span>
+            new FacesMessage(FacesMessage.SEVERITY_INFO, &quot;✅ Dossier envoyé à l'analyste.&quot;, null));
+<span class="fc" id="L1039">    }</span>
+
+
+
+    public void loadFoldersForAnalyst() {
+<span class="nc bnc" id="L1044" title="All 2 branches missed.">        if (!FacesContext.getCurrentInstance().isPostback()) {</span>
+<span class="nc" id="L1045">            User current = userController.getCurrentUser();</span>
+<span class="nc bnc" id="L1046" title="All 4 branches missed.">            if (current != null &amp;&amp; current.getRole() == Role.Analyste) {</span>
+<span class="nc" id="L1047">                foldersAssignedToMe = folderService.getFoldersAssignedToAnalyst(current);</span>
+<span class="nc" id="L1048">                filteredFolders = null;</span>
+<span class="nc" id="L1049">                selectedFolder = null; // only clear on first load</span>
+            }
+        }
+<span class="nc" id="L1052">    }</span>
+
+
+
+    public void loadFoldersForResponsableAnalyst() {
+<span class="fc" id="L1057">        User current = userController.getCurrentUser();</span>
+<span class="pc bpc" id="L1058" title="2 of 4 branches missed.">        if (current != null &amp;&amp; current.getRole() == Role.RESPONSABLE_ANALYSTE) {</span>
+<span class="fc" id="L1059">            analystFolders = folderService.getAllFoldersAssignedToAnalysts(); // call your FolderService</span>
+<span class="fc" id="L1060">            filteredFolders = null;</span>
+<span class="fc" id="L1061">            selectedFolder = null;</span>
+<span class="fc" id="L1062">            System.out.println(&quot;📦 Loaded all folders for Responsable Analyste&quot;);</span>
+        }
+<span class="fc" id="L1064">    }</span>
+    
+    public void handleResponsableDecision(String decisionType) {
+<span class="pc bpc" id="L1067" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L1069">        User responsable = userController.getCurrentUser();</span>
+<span class="fc" id="L1070">        User officer = selectedFolder.getCreatedBy();</span>
+
+<span class="fc" id="L1072">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L1073">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L1074">        action.setUser(responsable);</span>
+<span class="fc" id="L1075">        action.setActionDate(LocalDate.now());</span>
+
+<span class="fc" id="L1077">        Alert alert = new Alert();</span>
+<span class="fc" id="L1078">        alert.setTargetUser(officer);</span>
+
+<span class="fc bfc" id="L1080" title="All 2 branches covered.">        if (&quot;approve&quot;.equalsIgnoreCase(decisionType)) {</span>
+<span class="fc" id="L1081">            selectedFolder.setNavigation(FolderNavigation.APPROUVE_PAR_ENGAGEMENT);</span>
+<span class="fc" id="L1082">            action.setComment(&quot;Approuvé par &quot; +responsable.getFirstName()+&quot; &quot;+responsable.getLastName()+&quot; : &quot;+ newComment);</span>
+<span class="fc" id="L1083">            alert.setMessage(responsable.getFirstName()+responsable.getLastName()+&quot; a validé le dossier '&quot; + selectedFolder.getReference() + &quot;'.&quot;);</span>
+<span class="fc" id="L1084">            creationMessage = &quot;✅ Dossier approuvé avec succès.&quot;;</span>
+<span class="pc bpc" id="L1085" title="1 of 2 branches missed.">        } else if (&quot;reject&quot;.equalsIgnoreCase(decisionType)) {</span>
+<span class="fc" id="L1086">            selectedFolder.setNavigation(FolderNavigation.REJETE_PAR_ENGAGEMENT);</span>
+<span class="fc" id="L1087">            action.setComment(&quot;Rejeté par &quot; +responsable.getFirstName()+&quot; &quot;+responsable.getLastName()+&quot; : &quot;+ newComment);</span>
+<span class="fc" id="L1088">            alert.setMessage(responsable.getFirstName()+responsable.getLastName()+&quot; a rejeté le dossier '&quot; + selectedFolder.getReference() + &quot;'.&quot;);</span>
+<span class="fc" id="L1089">            creationMessage = &quot;❌ Dossier rejeté par le Le Directeur Engagement.&quot;;</span>
+        } else {
+<span class="nc" id="L1091">            return; // invalid input</span>
+        }
+
+<span class="fc" id="L1094">        folderActionService.saveAction(action);</span>
+<span class="fc" id="L1095">        folderService.updateFolder(selectedFolder);</span>
+<span class="fc" id="L1096">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L1098">        newComment = &quot;&quot;;</span>
+<span class="fc" id="L1099">        System.out.println(&quot;🔔 Le Directeur Engagement a pris une décision : &quot; + decisionType);</span>
+<span class="fc" id="L1100">    }</span>
+    
+    public void handleCICDecision(String decisionType) {
+<span class="pc bpc" id="L1103" title="1 of 2 branches missed.">        if (selectedFolder == null) return;</span>
+
+<span class="fc" id="L1105">        User responsable = userController.getCurrentUser();</span>
+<span class="fc" id="L1106">        User officer = selectedFolder.getCreatedBy();</span>
+
+<span class="fc" id="L1108">        FolderAction action = new FolderAction();</span>
+<span class="fc" id="L1109">        action.setFolder(selectedFolder);</span>
+<span class="fc" id="L1110">        action.setUser(responsable);</span>
+<span class="fc" id="L1111">        action.setActionDate(LocalDate.now());</span>
+
+<span class="fc" id="L1113">        Alert alert = new Alert();</span>
+<span class="fc" id="L1114">        alert.setTargetUser(officer);</span>
+
+<span class="fc bfc" id="L1116" title="All 2 branches covered.">        if (&quot;approve&quot;.equalsIgnoreCase(decisionType)) {</span>
+<span class="fc" id="L1117">            selectedFolder.setNavigation(FolderNavigation.APPROUVE_PAR_CIC);</span>
+<span class="fc" id="L1118">            action.setComment(&quot;Approuvé par &quot; +responsable.getFirstName()+&quot; &quot;+responsable.getLastName()+&quot; : &quot;+ newComment);</span>
+<span class="fc" id="L1119">            alert.setMessage(responsable.getFirstName()+responsable.getLastName()+&quot; a validé le dossier '&quot; + selectedFolder.getReference() + &quot;'.&quot;);</span>
+<span class="fc" id="L1120">            creationMessage = &quot;✅ Dossier approuvé avec succès.&quot;;</span>
+<span class="pc bpc" id="L1121" title="1 of 2 branches missed.">        } else if (&quot;reject&quot;.equalsIgnoreCase(decisionType)) {</span>
+<span class="fc" id="L1122">            selectedFolder.setNavigation(FolderNavigation.REJETE_PAR_CIC);</span>
+<span class="fc" id="L1123">            action.setComment(&quot;Rejeté par &quot; +responsable.getFirstName()+&quot; &quot;+responsable.getLastName()+&quot; : &quot;+ newComment);</span>
+<span class="fc" id="L1124">            alert.setMessage(responsable.getFirstName()+responsable.getLastName()+&quot; a rejeté le dossier '&quot; + selectedFolder.getReference() + &quot;'.&quot;);</span>
+<span class="fc" id="L1125">            creationMessage = &quot;❌ Dossier rejeté par le Le Directeur CIC.&quot;;</span>
+        } else {
+<span class="nc" id="L1127">            return; // invalid input</span>
+        }
+
+<span class="fc" id="L1130">        folderActionService.saveAction(action);</span>
+<span class="fc" id="L1131">        folderService.updateFolder(selectedFolder);</span>
+<span class="fc" id="L1132">        alertService.createAlert(alert);</span>
+
+<span class="fc" id="L1134">        newComment = &quot;&quot;;</span>
+        
+<span class="fc" id="L1136">    }</span>
+
+
+
+
+
+    private transient List&lt;Folder&gt; filteredFolders;
+
+    public List&lt;Folder&gt; getFilteredFolders() {
+<span class="fc" id="L1145">        return filteredFolders;</span>
+    }
+
+    public void setFilteredFolders(List&lt;Folder&gt; filteredFolders) {
+<span class="nc" id="L1149">        this.filteredFolders = filteredFolders;</span>
+<span class="nc" id="L1150">    }</span>
+
+
+<span class="nc" id="L1153">    public String getReference() { return reference; }</span>
+<span class="fc" id="L1154">    public void setReference(String reference) { this.reference = reference; }</span>
+
+<span class="nc" id="L1156">    public String getDescription() { return description; }</span>
+<span class="fc" id="L1157">    public void setDescription(String description) { this.description = description; }</span>
+
+<span class="nc" id="L1159">    public String getClient() { return client; }</span>
+<span class="fc" id="L1160">    public void setClient(String client) { this.client = client; }</span>
+
+<span class="fc" id="L1162">    public String getCreationMessage() { return creationMessage; }</span>
+<span class="nc" id="L1163">    public void setCreationMessage(String creationMessage) { this.creationMessage = creationMessage; }</span>
+
+<span class="fc" id="L1165">    public List&lt;Folder&gt; getMyFolders() { return myFolders; }</span>
+<span class="nc" id="L1166">    public void setMyFolders(List&lt;Folder&gt; myFolders) { this.myFolders = myFolders; }</span>
+
+<span class="fc" id="L1168">    public Folder getSelectedFolder() { return selectedFolder; }</span>
+<span class="fc" id="L1169">    public void setSelectedFolder(Folder selectedFolder) { this.selectedFolder = selectedFolder; }</span>
+
+<span class="fc" id="L1171">    public String getNewComment() { return newComment; }</span>
+<span class="fc" id="L1172">    public void setNewComment(String newComment) { this.newComment = newComment; }</span>
+    
+<span class="nc" id="L1174">    public Double getRevenuMensuel() { return revenuMensuel; }</span>
+<span class="fc" id="L1175">    public void setRevenuMensuel(Double revenuMensuel) { this.revenuMensuel = revenuMensuel; }</span>
+
+<span class="nc" id="L1177">    public Double getMontantDemande() { return montantDemande; }</span>
+<span class="fc" id="L1178">    public void setMontantDemande(Double montantDemande) { this.montantDemande = montantDemande; }</span>
+
+<span class="nc" id="L1180">    public Integer getDureeMois() { return dureeMois; }</span>
+<span class="fc" id="L1181">    public void setDureeMois(Integer dureeMois) { this.dureeMois = dureeMois; }</span>
+
+<span class="nc" id="L1183">    public Double getTauxAnnuel() { return tauxAnnuel; }</span>
+<span class="fc" id="L1184">    public void setTauxAnnuel(Double tauxAnnuel) { this.tauxAnnuel = tauxAnnuel; }</span>
+    public User getSelectedAnalyst() {
+<span class="nc" id="L1186">        return selectedAnalyst;</span>
+    }
+
+    public void setSelectedAnalyst(User selectedAnalyst) {
+<span class="nc" id="L1190">        this.selectedAnalyst = selectedAnalyst;</span>
+<span class="nc" id="L1191">    }</span>
+
+    public List&lt;Folder&gt; getAnalystFolders() {
+<span class="pc bpc" id="L1194" title="1 of 2 branches missed.">        if (analystFolders == null) {</span>
+<span class="nc" id="L1195">            analystFolders = folderService.getFoldersAssignedToUser(userController.getCurrentUser());</span>
+        }
+<span class="fc" id="L1197">        return analystFolders;</span>
+    }
+    public List&lt;Folder&gt; getcicFolders() {
+<span class="nc" id="L1200">        return cicFolders;</span>
+    }
+    
+    
+    public List&lt;Folder&gt; getFoldersAssignedToMe() {
+<span class="nc" id="L1205">        return foldersAssignedToMe;</span>
+    }
+
+    public void setFoldersAssignedToMe(List&lt;Folder&gt; foldersAssignedToMe) {
+<span class="nc" id="L1209">        this.foldersAssignedToMe = foldersAssignedToMe;</span>
+<span class="nc" id="L1210">    }</span>
+    public List&lt;Folder&gt; getFoldersAssignedToCIC() {
+<span class="nc" id="L1212">        return foldersAssignedToCIC;</span>
+    }
+
+    public void setFoldersAssignedToCIC(List&lt;Folder&gt; foldersAssignedToCIC) {
+<span class="nc" id="L1216">        this.foldersAssignedToCIC = foldersAssignedToCIC;</span>
+<span class="nc" id="L1217">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

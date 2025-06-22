@@ -1132,7 +1132,7 @@ public class FolderController implements Serializable {
         alertService.createAlert(alert);
 
         newComment = "";
-        System.out.println("🔔 Le Directeur CIC a pris une décision : " + decisionType);
+        
     }
 
 

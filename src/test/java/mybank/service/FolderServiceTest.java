@@ -102,4 +102,68 @@ class FolderServiceTest {
         assertEquals(1, names.size());
         assertEquals("Tunis Agency", names.get(0));
     }
+    @Test
+    void testCountFoldersFromOtherAgencies() {
+        User analyst = new User();
+        Agency agency = new Agency();
+        when(em.createQuery(anyString(), eq(Long.class))).thenReturn(countQuery);
+        when(countQuery.setParameter("analyst", analyst)).thenReturn(countQuery);
+        when(countQuery.setParameter("agency", agency)).thenReturn(countQuery);
+        when(countQuery.setParameter("termine", FolderNavigation.TERMINE)).thenReturn(countQuery);
+        when(countQuery.getSingleResult()).thenReturn(3L);
+
+        long result = folderService.countFoldersFromOtherAgencies(analyst, agency);
+        assertEquals(3L, result);
+    }
+    @Test
+    void testGetAllFoldersAssignedToAnalysts() {
+        when(em.createQuery(anyString(), eq(Folder.class))).thenReturn(folderQuery);
+        when(folderQuery.setParameter("role", Role.Analyste)).thenReturn(folderQuery);
+        when(folderQuery.setParameter("dep", Department.ENG)).thenReturn(folderQuery);
+        when(folderQuery.setParameter("termine", FolderNavigation.TERMINE)).thenReturn(folderQuery);
+        when(folderQuery.getResultList()).thenReturn(List.of(new Folder()));
+
+        List<Folder> result = folderService.getAllFoldersAssignedToAnalysts();
+        assertEquals(1, result.size());
+    }
+    @Test
+    void testGetAllFoldersAssignedToCICAnalysts() {
+        when(em.createQuery(anyString(), eq(Folder.class))).thenReturn(folderQuery);
+        when(folderQuery.setParameter("role", Role.Analyste_CIC)).thenReturn(folderQuery);
+        when(folderQuery.setParameter("dep", Department.CIC)).thenReturn(folderQuery);
+        when(folderQuery.setParameter("termine", FolderNavigation.TERMINE)).thenReturn(folderQuery);
+        when(folderQuery.getResultList()).thenReturn(List.of(new Folder()));
+
+        List<Folder> result = folderService.getAllFoldersAssignedToCICAnalysts();
+        assertEquals(1, result.size());
+    }
+    @Test
+    void testGetAllFolders() {
+        when(em.createQuery(anyString(), eq(Folder.class))).thenReturn(folderQuery);
+        when(folderQuery.getResultList()).thenReturn(List.of(new Folder()));
+
+        List<Folder> result = folderService.getAllFolders();
+        assertEquals(1, result.size());
+    }
+    @Test
+    void testAssignFolderToAnalyst() {
+        Folder folder = new Folder();
+        User analyst = new User();
+        folderService.assignFolderToAnalyst(folder, analyst);
+        assertEquals(analyst, folder.getAssignedTo());
+        verify(em).merge(folder);
+    }
+    @Test
+    void testGetFoldersAssignedToAnalyst() {
+        User analyst = new User();
+
+        when(em.createQuery(anyString(), eq(Folder.class))).thenReturn(folderQuery);
+        when(folderQuery.setParameter("analyst", analyst)).thenReturn(folderQuery);
+        when(folderQuery.setParameter("termine", FolderNavigation.TERMINE)).thenReturn(folderQuery);
+        when(folderQuery.getResultList()).thenReturn(List.of(new Folder()));
+
+        List<Folder> result = folderService.getFoldersAssignedToAnalyst(analyst);
+        assertEquals(1, result.size());
+    }
+
 }

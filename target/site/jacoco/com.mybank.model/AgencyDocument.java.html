@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AgencyDocument.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybank</a> &gt; <a href="index.source.html" class="el_package">com.mybank.model</a> &gt; <span class="el_source">AgencyDocument.java</span></div><h1>AgencyDocument.java</h1><pre class="source lang-java linenums">package com.mybank.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = &quot;agency_documents&quot;)
+public class AgencyDocument {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = &quot;file_name&quot;, nullable = false)
+    private String fileName;
+
+    @Lob
+    @Column(name = &quot;file_data&quot;, nullable = false)
+    private byte[] fileData;
+
+    @Column(name = &quot;upload_date&quot;, nullable = false)
+    private LocalDate uploadDate;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;folder_id&quot;, nullable = false)
+    private Folder folder;
+
+<span class="fc" id="L28">    public AgencyDocument() {</span>
+<span class="fc" id="L29">        this.uploadDate = LocalDate.now();</span>
+<span class="fc" id="L30">    }</span>
+
+    // Getters and Setters
+<span class="nc" id="L33">    public Long getId() { return id; }</span>
+
+<span class="fc" id="L35">    public String getFileName() { return fileName; }</span>
+<span class="fc" id="L36">    public void setFileName(String fileName) { this.fileName = fileName; }</span>
+    
+    
+
+<span class="nc" id="L40">    public byte[] getFileData() { return fileData; }</span>
+<span class="fc" id="L41">    public void setFileData(byte[] fileData) { this.fileData = fileData; }</span>
+
+<span class="nc" id="L43">    public LocalDate getUploadDate() { return uploadDate; }</span>
+<span class="fc" id="L44">    public void setUploadDate(LocalDate uploadDate) { this.uploadDate = uploadDate; }</span>
+
+<span class="nc" id="L46">    public Folder getFolder() { return folder; }</span>
+<span class="fc" id="L47">    public void setFolder(Folder folder) { this.folder = folder; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

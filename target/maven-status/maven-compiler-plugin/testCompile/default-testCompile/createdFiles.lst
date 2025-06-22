@@ -6,6 +6,7 @@ mybank\service\UserServiceTest.class
 mybank\controller\SimulationControllerTest.class
 mybank\controller\AlertControllerTest.class
 mybank\controller\DashboardControllerTest.class
+mybank\controller\AssignControllerTest.class
 mybank\service\DemandeCreditServiceTest.class
 mybank\service\LoanApprovalPredictionServiceTest.class
 mybank\controller\AgencyControllerTest.class
