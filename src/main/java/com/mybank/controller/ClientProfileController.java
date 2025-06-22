@@ -7,9 +7,13 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
-
+/**
+ * JSF managed bean - must use field injection due to JSF lifecycle requirements.
+ * Constructor injection causes deployment issues (e.g. WELD-001410).
+ */
 @Named("clientProfileController")
 @SessionScoped
+@SuppressWarnings("squid:S6813") // Sonar false positive: field injection is required in JSF    
 public class ClientProfileController implements Serializable {
 
     private static final long serialVersionUID = 1L;
