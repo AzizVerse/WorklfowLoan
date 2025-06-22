@@ -1,19 +1,21 @@
-	package com.mybank.controller;
-	
-	import com.mybank.model.*;
+package com.mybank.controller;
+import com.mybank.model.*;
 import com.mybank.service.UserService;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
-	import jakarta.faces.context.FacesContext;
-	import jakarta.inject.Inject;
-	import jakarta.inject.Named;
-	import java.io.Serializable;
-	import java.util.Arrays;
-	import java.util.List;
-	
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+/**
+ * JSF managed bean - must use field injection due to JSF lifecycle requirements.
+ * Constructor injection causes deployment issues (e.g. WELD-001410).
+ */
 	@Named("userController")
 	@SessionScoped
+	@SuppressWarnings("squid:S6813") // Sonar false positive: field injection is required in JSF	
 	public class UserController implements Serializable {
 	    private static final long serialVersionUID = 1L;
 	

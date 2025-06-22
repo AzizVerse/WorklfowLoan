@@ -3,7 +3,9 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      lang="en"
+      xml:lang="en">
 
 
 <h:head>
@@ -48,7 +50,12 @@
             <div class="sidebar-header">
                 <h:graphicImage name="images/work.png" styleClass="logo"/>
                 <!-- ALERT ICON -->
-                <div class="alert-icon" onclick="toggleAlerts()">
+                <div class="alert-icon"
+     role="button"
+     tabindex="0"
+     aria-label="View alerts"
+     onclick="toggleAlerts()"
+     onkeydown="if(event.key === 'Enter' || event.key === ' ') toggleAlerts();">
                     🔔
                     <span class="alert-badge">#{alertController.myAlerts.stream().filter(a -> !a.read).count()}</span>
                 </div>
@@ -72,17 +79,19 @@
                          style="margin-bottom:10px;" />
 
         <!-- SCROLLABLE AREA FOR ALERTS -->
-        <div style="max-height: 300px; overflow-y: auto;">
-            <ui:repeat value="#{alertController.myAlerts}" var="alert">
-                <li class="alert-item" style="background-color: #{alert.read ? '#f0f0f0' : '#fff8e1'};">
-                    #{alert.message}
-                    <br />
-                    <span style="font-size: 0.85em; color: gray;">
-                        🕒 #{alert.formattedCreatedAt}
-                    </span>
-                </li>
-            </ui:repeat>
-        </div>
+         <div style="max-height: 300px; overflow-y: auto;">
+    <ul style="list-style-type: none; padding-left: 0; margin: 0;">
+        <ui:repeat value="#{alertController.myAlerts}" var="alert">
+            <li class="alert-item" style="background-color: #{alert.read ? '#f0f0f0' : '#fff8e1'};">
+                #{alert.message}
+                <br />
+                <span style="font-size: 0.85em; color: gray;">
+                    🕒 #{alert.formattedCreatedAt}
+                </span>
+            </li>
+        </ui:repeat>
+    </ul>
+</div>
     </div>
 </h:form>
          

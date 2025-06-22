@@ -28,9 +28,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * JSF managed bean - must use field injection due to JSF lifecycle requirements.
+ * Constructor injection causes deployment issues (e.g. WELD-001410).
+ */
 @Named("folderBean")
 @SessionScoped
+@SuppressWarnings("squid:S6813") // Sonar false positive: field injection is required in JSF	
 public class FolderController implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -456,13 +460,14 @@ public class FolderController implements Serializable {
 
 
     public void selectFolder(Folder folder) {
-        if (folder != null) {
-            System.out.println("✅ [selectFolder] ID: " + folder.getId() + " | Ref: " + folder.getReference());
-        } else {
+        if (folder == null) {
             System.out.println("⚠️ [selectFolder] Called with null folder");
+            return;
         }
 
-        if (this.selectedFolder != null && this.selectedFolder.getId().equals(folder.getId())) {
+        System.out.println("✅ [selectFolder] ID: " + folder.getId() + " | Ref: " + folder.getReference());
+
+        if (this.selectedFolder != null && folder.getId() != null && folder.getId().equals(this.selectedFolder.getId())) {
             this.selectedFolder = null;
             System.out.println("🔁 Deselected folder.");
         } else {
@@ -471,6 +476,7 @@ public class FolderController implements Serializable {
             clientProfileController.loadProfile();
         }
     }
+
     
     public void sendToResponsableAnalyste() {
         if (selectedFolder == null) return;
