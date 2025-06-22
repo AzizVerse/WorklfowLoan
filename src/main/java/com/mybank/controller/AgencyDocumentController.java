@@ -93,7 +93,7 @@ public class AgencyDocumentController implements Serializable {
 
         } catch (Exception e) {
             uploadMessage = "❌ Erreur lors de l'envoi du fichier.";
-            e.printStackTrace();
+            
         }
     }
 
