@@ -21,6 +21,17 @@ pipeline {
                 }
             }
         }
+         stage('MAVEN BUILD') {
+            steps {
+                script {
+                    if (fileExists('target')) {
+                        echo 'Nettoyage du répertoire target...'
+                        sh 'rm -rf target'
+                    }
+                }
+                sh 'mvn clean package'
+            }
+        }
 
         stage('Java Analysis & Tests') {
             steps {
