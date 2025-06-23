@@ -72,6 +72,12 @@ pipeline {
                 '''
             }
         }
+
+        stage('Nexus'){
+                    steps {
+                            sh 'mvn deploy -DskipTests -Dusername=${NEXUS_USER} -Dpassword=${NEXUS_PASS}'
+                    }
+                }
     }
 
     post {
