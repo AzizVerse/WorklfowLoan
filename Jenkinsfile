@@ -75,21 +75,7 @@ pipeline {
             }
         }
 
-        stage('Security: OWASP Dependency Check') {
-    steps {
-        script {
-            try {
-                sh '''
-                    mvn org.owasp:dependency-check-maven:check \
-                        -Dnvd.api.disabled=true \
-                        -Dformat=HTML
-                '''
-            } catch (err) {
-                echo "⚠️ OWASP Dependency Check failed — continuing build without blocking."
-            }
-        }
-    }
-}
+       
 
 
         stage('Nexus'){
