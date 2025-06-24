@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')
+        SONAR_TOKEN = credentials('sona-token')
     }
 
     stages {
@@ -12,12 +12,12 @@ pipeline {
                 echo 'Cloning Java EE Backend and Python API...'
                 git branch: 'main',
                     url: 'https://github.com/AzizVerse/WorklfowLoan.git',
-                    credentialsId: 'github-creds'
+                    credentialsId: 'github-cred'
 
                 dir('loan-ml-api') {
                     git branch: 'main',
                         url: 'https://github.com/AzizVerse/loan-ml-api.git',
-                        credentialsId: 'github-creds'
+                        credentialsId: 'github-cred'
                 }
             }
         }
