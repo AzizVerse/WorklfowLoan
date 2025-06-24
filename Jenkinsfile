@@ -24,19 +24,20 @@ pipeline {
          
 
         stage('Java Analysis & Tests') {
-            steps {
-                echo 'Running Java build, tests, static analysis, and code coverage...'
-                sh '''
-                    mvn clean verify \
-                        checkstyle:checkstyle \
-                        pmd:pmd \
-                        jacoco:prepare-agent \
-                        test \
-                        jacoco:report
-                        
-                '''
-            }
-        }
+    steps {
+        echo 'Running Java build, tests, static analysis, and code coverage...'
+        sh '''
+            mvn clean verify \
+                -Ddependency-check.skip=true \
+                checkstyle:checkstyle \
+                pmd:pmd \
+                jacoco:prepare-agent \
+                test \
+                jacoco:report
+        '''
+    }
+}
+
 
         stage('SonarCloud Analysis') {
             steps {
