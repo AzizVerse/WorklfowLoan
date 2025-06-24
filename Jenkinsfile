@@ -3,8 +3,7 @@ pipeline {
 
     environment {
         SONAR_TOKEN = credentials('sona_token')
-        NEXUS_USER = credentials('nexus-username-id') // Add these if not already defined
-        NEXUS_PASS = credentials('nexus-password-id')
+        
     }
 
     stages {
@@ -93,7 +92,8 @@ pipeline {
     }
 
     post {
-        always {
+    always {
+        node {
             echo 'Archiving reports and results...'
 
             // Java reports
@@ -110,3 +110,4 @@ pipeline {
         }
     }
 }
+
