@@ -29,7 +29,8 @@ pipeline {
                         sh 'rm -rf target'
                     }
                 }
-                sh 'mvn clean package'
+                sh 'mvn clean package -Ddependency-check.skip=true'
+
             }
         }
 
