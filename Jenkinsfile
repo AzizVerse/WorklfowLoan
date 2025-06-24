@@ -33,7 +33,7 @@ pipeline {
                         jacoco:prepare-agent \
                         test \
                         jacoco:report
-                        -Ddependency-check.skip=true
+                        
                 '''
             }
         }
