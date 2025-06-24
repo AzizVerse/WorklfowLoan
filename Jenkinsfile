@@ -55,12 +55,13 @@ pipeline {
                 dir('loan-ml-api') {
                     echo 'Installing dependencies & running Python linting + tests...'
                     bat '''
-                        python -m pip install --upgrade pip
-                        python -m pip install -r requirements.txt
-                        python -m pip install flake8 pytest pytest-cov
-                        python -m flake8 main.py loan.py test_main.py
-                        python -m pytest --cov=. --cov-report=html
-                    '''
+    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install --upgrade pip
+    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install -r requirements.txt
+    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install flake8 pytest pytest-cov
+    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m flake8 main.py loan.py test_main.py
+    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest --cov=. --cov-report=html
+'''
+
                 }
             }
         }
