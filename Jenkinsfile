@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         SONAR_TOKEN = credentials('sona_token')
-        
     }
 
     stages {
@@ -81,33 +80,25 @@ pipeline {
                 }
             }
         }
-
-        stage('Nexus') {
-            steps {
-                bat '''
-                    mvn deploy -DskipTests -Dusername=%NEXUS_USER% -Dpassword=%NEXUS_PASS%
-                '''
-            }
-        }
     }
 
     post {
-    always {
-        node {
-            echo 'Archiving reports and results...'
+        always {
+            node {
+                echo 'Archiving reports and results...'
 
-            // Java reports
-            junit '**/target/surefire-reports/*.xml'
-            archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
-            archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
-            archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
+                // Java reports
+                junit '**/target/surefire-reports/*.xml'
+                archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
+                archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
+                archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
 
-            // OWASP security report
-            archiveArtifacts artifacts: '**/target/dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
+                // OWASP security report
+                archiveArtifacts artifacts: '**/target/dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
 
-            // Python reports
-            archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
+                // Python reports
+                archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
+            }
         }
     }
 }
-
