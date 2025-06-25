@@ -81,7 +81,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Nexus') {
+       stage('Deploy to Nexus') {
     steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
             writeFile file: 'settings.xml', text: """
@@ -101,6 +101,7 @@ pipeline {
         }
     }
 }
+
 
     }
 
