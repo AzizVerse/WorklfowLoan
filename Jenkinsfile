@@ -82,16 +82,26 @@ pipeline {
             }
         }
         stage('Deploy to Nexus') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                    bat """
-    mvn deploy -DskipTests ^
-    -DaltDeploymentRepository=nexus::default::http://%NEXUS_USER%:%NEXUS_PASS%@localhost:8081/repository/maven-releases/
-"""
-
-                }
-            }
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+            writeFile file: 'settings.xml', text: """
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>nexus</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+  </servers>
+</settings>
+            """
+            bat 'mvn deploy -s settings.xml -DskipTests'
         }
+    }
+}
+
     }
 
      post {
