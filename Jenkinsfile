@@ -84,7 +84,11 @@ pipeline {
         stage('Deploy to Nexus') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                    bat 'mvn deploy -DskipTests -Dnexus.username=%NEXUS_USER% -Dnexus.password=%NEXUS_PASS%'
+                    bat """
+    mvn deploy -DskipTests ^
+    -DaltDeploymentRepository=nexus::default::http://%NEXUS_USER%:%NEXUS_PASS%@localhost:8081/repository/maven-releases/
+"""
+
                 }
             }
         }
