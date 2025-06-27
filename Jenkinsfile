@@ -85,11 +85,10 @@ pipeline {
     steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
             script {
-                // Safely write settings.xml (avoid direct interpolation of secrets)
-                def settingsXml = """
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+                // Safely write settings.xml
+                def settingsXml = '''<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
       <id>nexus</id>
@@ -97,17 +96,15 @@ pipeline {
       <password>${NEXUS_PASS}</password>
     </server>
   </servers>
-</settings>
-"""
+</settings>'''
                 writeFile file: 'settings.xml', text: settingsXml
 
-                // Get version from pom.xml
                 def version = readMavenPom().version
                 def url = "http://localhost:8081/repository/maven-releases/com/mybank/mybank/${version}/mybank-${version}.war"
 
-                // Check if artifact already exists
+                // Use single quotes in bat to avoid breaking Windows cmd
                 def status = bat(
-                    script: """curl -u %NEXUS_USER%:%NEXUS_PASS% -s -o NUL -w "%{http_code}" "${url}" """,
+                    script: 'curl -u %NEXUS_USER%:%NEXUS_PASS% -s -o NUL -w "%{http_code}" ' + url,
                     returnStdout: true
                 ).trim()
 
@@ -121,6 +118,7 @@ pipeline {
         }
     }
 }
+
 
 
         stage('Build Docker Image') {
