@@ -84,7 +84,9 @@ pipeline {
        stage('Deploy to Nexus') {
     steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-            writeFile file: 'settings.xml', text: """
+            script {
+                // Write settings.xml with Nexus credentials
+                writeFile file: 'settings.xml', text: """
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
@@ -96,11 +98,31 @@ pipeline {
     </server>
   </servers>
 </settings>
-            """
-            bat 'mvn deploy -s settings.xml -DskipTests'
+                """
+
+                // Read current project version
+                def version = readMavenPom().version
+
+                // Construct the Nexus URL to check if the artifact already exists
+                def artifactUrl = "http://localhost:8081/repository/maven-releases/com/mybank/mybank/${version}/mybank-${version}.war"
+
+                // Check if the artifact exists using curl
+                def exists = bat(
+                    script: "curl -s -o NUL -w \"%{http_code}\" ${artifactUrl}",
+                    returnStdout: true
+                ).trim()
+
+                if (exists == "200") {
+                    echo "✅ Artifact already exists in Nexus — skipping deploy."
+                } else {
+                    echo "📦 Artifact not found — deploying to Nexus..."
+                    bat 'mvn deploy -s settings.xml -DskipTests'
+                }
+            }
         }
     }
 }
+
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
