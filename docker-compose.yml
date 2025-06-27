@@ -1,0 +1,26 @@
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe
+    container_name: oracle-db
+    environment:
+      - ORACLE_PASSWORD=azizmarco23
+      - APP_USER=system
+      - APP_USER_PASSWORD=azizmarco23
+    ports:
+      - "51521:1521"
+    networks:
+      - mynet
+
+  mybank-app:
+    image: mybank-image
+    container_name: mybank-app
+    depends_on:
+      - oracle-db
+    ports:
+      - "8085:8080"
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge

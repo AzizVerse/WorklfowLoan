@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      lang="en"
+      xml:lang="en">
+<h:head>
+    <title>Page 1 - Demande de Crédit</title>
+     <f:metadata>
+    <f:event type="preRenderView" listener="#{folderBean.loadFoldersForCurrentUser}" />
+</f:metadata>
+     <style>
+        .content {
+            padding: 20px;
+        }
+        .details-section {
+            margin-top: 30px;
+        }
+        .label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .rounded-button {
+            border-radius: 6px;
+            font-weight: 600;
+        }
+    </style>
+</h:head>
+<h:body>
+<div class="content">
+    <h2>Suivi des Dossiers de Demande de Crédit 📄</h2>
+    <p style="margin-bottom: 20px; font-size: 1.1em; color: #555;">
+        Cette interface vous permet de consulter les dossiers de crédit en cours, d'accéder à leurs détails,
+        et de créer une simulation ou une demande de prêt à partir des informations du client.
+    </p>
+
+    <h:form id="mainForm">
+        <p:panel header="Mes Dossiers">
+            <p:dataTable id="folderTable"
+                         var="folder"
+                         value="#{folderBean.myFolders}"
+                         filteredValue="#{folderBean.filteredFolders}"
+                         widgetVar="folderTableWidget"
+                         scrollable="true"
+                         scrollHeight="380"
+                         paginator="true"
+                         paginatorPosition="bottom"
+                         rows="5"
+                         styleClass="modern-table"
+                         sortBy="#{folder.createdDate}"
+                         sortOrder="descending">
+
+               <p:column headerText="Référence"
+          filterBy="#{folder.reference}"
+          filterMatchMode="contains"
+          filterable="true"
+          style="width: 20%;">
+    <f:facet name="header">
+        <span><i class="pi pi-search" style="margin-right:5px;"></i> Référence</span>
+    </f:facet>
+    <h:outputText value="#{folder.reference}" />
+</p:column>
+
+                <p:column headerText="Client"
+                          filterBy="#{folder.client}"
+                          filterMatchMode="contains"
+                          filterable="true"
+                          width="20%">
+                    <f:facet name="header">
+                        <i class="pi pi-search" style="margin-right:5px;" /> Client
+                    </f:facet>
+                    <h:outputText value="#{folder.client}" />
+                </p:column>
+
+               <p:column headerText="Date de création"
+          filterBy="#{folder.createdDate}"
+          filterMatchMode="contains"
+          filterable="true"
+          sortBy="#{folder.createdDate}"
+          style="width: 25%;">
+    <f:facet name="header">
+        <span><i class="pi pi-calendar" style="margin-right:5px;"></i> Date</span>
+    </f:facet>
+    <h:outputText value="#{folder.createdDate}" />
+</p:column>
+            
+
+                <p:column headerText="Action" width="25%" style="text-align:center;">
+                    <p:commandButton value="Voir Détail"
+                                     icon="pi pi-eye"
+                                     actionListener="#{folderBean.selectFolder(folder)}"
+                                     update="mainForm:folderDetailsWrapper loanDialogForm"
+                                     process="@this"
+                                     styleClass="rounded-button ui-button-info" />
+                </p:column>
+            </p:dataTable>
+
+            <p:commandButton value="🔄 Réinitialiser les filtres"
+                             icon="pi pi-filter-slash"
+                             type="button"
+                             onclick="PF('folderTableWidget').clearFilters();"
+                             styleClass="ui-button-secondary"
+                             style="margin-top:10px;" />
+        </p:panel>
+
+        <!-- 📑 Section Détail -->
+         <p:outputPanel id="folderDetailsWrapper" layout="block">
+    <p:panel id="folderDetails"
+             header="📄 Détails du Dossier de Crédit"
+             rendered="#{not empty folderBean.selectedFolder}"
+             styleClass="details-section">
+
+        <!-- 📂 Folder Basic Information -->
+        <h:panelGrid columns="2" cellpadding="8" style="width:100%;">
+            <h:outputText value="Référence du Dossier :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.reference}" />
+
+            <h:outputText value="Nom du Client :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.client}" />
+
+            <h:outputText value="Description :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.description}" />
+
+            <h:outputText value="Date de création :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.createdDate}" />
+
+            <h:outputText value="Montant demandé :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.montantDemande} TND" />
+
+            <h:outputText value="Durée du Prêt :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.dureeMois} mois" />
+
+            <h:outputText value="Revenu Mensuel :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.revenuMensuel} TND" />
+
+            <h:outputText value="Taux Annuel d'Intérêt :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.tauxAnnuel} %" />
+        </h:panelGrid>
+
+        <p:separator style="margin:20px 0;" />
+
+        <!-- 👤 Client Profile Details with Wizard -->
+        <h3 style="margin-top:20px;">👤 Profil du Client</h3>
+
+        <p:wizard showStepStatus="false" style="margin-top:10px;">
+            
+            <!-- Step 1: Identification & Employment -->
+            <p:tab id="step1" title="Informations Personnelles">
+                <h:panelGrid columns="2" cellpadding="8" style="width:100%;">
+                    <h:outputText value="Âge :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.age}" />
+
+                    <h:outputText value="Score de Crédit :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.scoreCredit}" />
+
+                    <h:outputText value="Statut d'Emploi :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.statutEmploi}" />
+
+                    <h:outputText value="Statut Matrimonial :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.statutMatrimonial}" />
+
+                    <h:outputText value="Statut de Propriété :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.statutPropriete}" />
+                </h:panelGrid>
+            </p:tab>
+
+            <!-- Step 2: Credit Behavior & Financials -->
+            <p:tab id="step2" title="Comportement Financier">
+                <h:panelGrid columns="2" cellpadding="8" style="width:100%;">
+                    <h:outputText value="Paiements Mensuels de Dettes :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.paiementsMensuelsDette} TND" />
+
+                    <h:outputText value="Utilisation Carte Crédit :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.tauxUtilisationCarteCredit} %" />
+
+                    <h:outputText value="Nombre de Lignes de Crédit Ouvertes :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.nombreLignesCreditOuvertes}" />
+
+                    <h:outputText value="Nombre de Demandes de Crédit :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.nombreDemandesCredit}" />
+
+                    <h:outputText value="Défaut de Prêt :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.precedentsDefautsPret eq 1 ? 'Oui' : 'Non'}" />
+
+                    <h:outputText value="Historique de Faillite :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.historiqueFaillite eq 1 ? 'Oui' : 'Non'}" />
+
+                    <h:outputText value="Historique Paiement (mois) :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.historiquePaiement}" />
+
+                    <h:outputText value="Durée Historique Crédit (mois) :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.dureeHistoriqueCredit}" />
+
+                    <h:outputText value="Actifs Totaux :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.actifsTotaux} TND" />
+
+                    <h:outputText value="Passifs Totaux :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.passifsTotaux} TND" />
+
+                    <h:outputText value="Valeur Nette :" styleClass="label" />
+                    <h:outputText value="#{clientProfileController.clientProfile.valeurNette} TND" />
+                </h:panelGrid>
+            </p:tab>
+
+        </p:wizard>
+
+        <p:separator style="margin:20px 0;" />
+
+        <!-- 📊 Résultat Simulation de Crédit -->
+        
+
+        <h3>📊 Résultat de Simulation</h3>
+
+<h:panelGrid columns="2" cellpadding="8" rendered="#{not empty simulationController.demandeCreditBySelectedFolder}">
+    <h:outputText value="Mensualité Estimée :" styleClass="label" />
+    <h:outputText value="#{simulationController.demandeCreditBySelectedFolder.mensualiteEstimee} TND" />
+
+    <h:outputText value="Taux d’Endettement Après Simulation :" styleClass="label" />
+    <h:outputText value="#{simulationController.demandeCreditBySelectedFolder.tauxEndettement} %" />
+
+    <h:outputText value="Taux d’Endettement Avant Simulation :" styleClass="label" />
+    <h:outputText value="#{simulationController.demandeCreditBySelectedFolder.tauxEndettementAvant} %" />
+    
+    
+  
+</h:panelGrid>
+<!-- Vertical Layout for Advice and Button -->
+<h:panelGroup layout="block" style="margin-top:15px;">
+
+    <!-- 💬 Advice Zone (appears only if simulation exists) -->
+    <h:outputText value="#{simulationController.getAdviceForFolderSimulation()}" 
+                  rendered="#{not empty simulationController.demandeCreditBySelectedFolder}"
+                  style="display:block; font-style:italic; color:#777; margin-bottom:20px;" />
+
+    <!-- Button Clearly Below -->
+    <p:commandButton value="Créer une Demande"
+    icon="pi pi-plus-circle"
+    action="#{simulationController.resetSimulation}"
+    update="loanDialogForm"
+    process="@this"
+    oncomplete="setTimeout(function(){ PF('loanDialog').show(); PF('loanDialog').initPosition(); }, 500);"
+    styleClass="ui-button-primary"
+    style="margin-top:10px;" />
+
+
+</h:panelGroup>
+
+ <p:separator style="margin:20px 0;" />
+     <!-- 🔍 Résultat de l'Évaluation -->
+<h3 style="margin-top:20px;">🔍 Résultat de l'Évaluation</h3>
+
+<h:panelGroup rendered="#{not empty clientProfileController.clientProfile.pretApprouve}">
+    <h:panelGrid columns="2" cellpadding="8" style="width:100%;">
+        <h:outputText value="Décision Prêt :" styleClass="label" />
+        <h:outputText value="#{clientProfileController.clientProfile.pretApprouve ? '✅ Prêt approuvé' : '❌ Prêt refusé'}" style="font-weight:bold" />
+
+        <h:outputText value="Probabilité d'Approbation :" styleClass="label" />
+        <h:outputText value="#{clientProfileController.clientProfile.probabiliteApprobation} %" />
+
+        <h:outputText value="Score Risque :" styleClass="label" />
+        <h:outputText value="#{clientProfileController.clientProfile.scoreRisque}" />
+    </h:panelGrid>
+</h:panelGroup>
+
+<h:panelGroup rendered="#{empty clientProfileController.clientProfile.pretApprouve}">
+    <h:outputText value="Ce dossier n'a pas encore été évalué." style="color:gray;" />
+</h:panelGroup>
+
+    </p:panel>
+</p:outputPanel>
+
+    </h:form>
+
+    <!-- ⬇️ Popup Simulation + Validation -->
+    <p:dialog id="loanDialog" widgetVar="loanDialog"
+          modal="true" closable="true" resizable="false"
+          header="🧮 Simulation de Crédit"
+          dynamic="true" 
+          visible="false"
+          style="width: 500px; border-radius: 10px;">
+
+    <h:form id="loanDialogForm">
+        <p:outputPanel id="simulationPanel" style="margin-top: 10px;">
+            <p:ajaxStatus onstart="PF('loanDialogBlock').show();" onsuccess="PF('loanDialogBlock').hide();" />
+
+            <!-- If no simulation yet, show a nice welcome message -->
+            <p:outputPanel rendered="#{simulationController.simulatedResult == null}">
+                <h3 style="text-align: center; color: #666;">Prêt à simuler le crédit du client ?</h3>
+
+              <p:commandButton value="🎯 Lancer la Simulation"
+    icon="pi pi-play"
+    action="#{simulationController.simulate}"
+    update="loanDialogForm"
+    process="@this"
+    oncomplete="PF('loanDialog').initPosition();"
+    styleClass="ui-button-success"
+    style="display: block; margin: 30px auto;" />
+
+
+
+
+            </p:outputPanel>
+
+            <!-- Once simulated, show a beautiful summary -->
+           <!-- Once simulated, show a beautiful summary -->
+<p:outputPanel rendered="#{not empty simulationController.simulatedResult}">
+    <h3 style="text-align: center; color: #2c3e50;">📈 Résultat de la Simulation</h3>
+
+    <h:panelGroup id="resultPanel" layout="block">
+
+        <p:panelGrid columns="2" style="width:80%; margin:10px auto;" columnClasses="label,value">
+            <h:outputText value="Mensualité Estimée :" style="font-weight: bold; color: #333;font-size: 0.9em;" />
+            <h:outputText value="#{simulationController.simulatedResult.mensualiteEstimee} TND" style="color: #27ae60;" />
+
+            <h:outputText value="Taux d’Endettement Après Simulation :" style="font-weight: bold; color: #333;" />
+            <h:outputText value="#{simulationController.simulatedResult.tauxEndettement} %" style="color: #2980b9;" />
+
+            <h:outputText value="Taux d’Endettement Avant Simulation :" style="font-weight: bold; color: #333;" />
+            <h:outputText value="#{simulationController.simulatedResult.tauxEndettementAvant} %" style="color: #c0392b;" />
+
+            <h:outputText value="#{simulationController.getEndettementAdvice()}"
+                          rendered="#{not empty simulationController.simulatedResult}"
+                          style="margin-top:15px; font-style:italic; color:#777;font-size: 0.85em;" />
+        </p:panelGrid>
+
+    </h:panelGroup>
+
+    <p:separator style="margin:20px 0;" />
+
+    <p:commandButton value="✅ Valider cette Simulation"
+                     icon="pi pi-check-circle"
+                     action="#{simulationController.saveSimulation}"
+                     update=":mainForm:folderDetailsWrapper"
+                     oncomplete="PF('loanDialog').hide();"
+                     styleClass="ui-button-primary"
+                     style="width: 100%; font-size: 1.2em; margin-top: 10px; border-radius: 8px;" />
+</p:outputPanel>
+
+<!-- ✨ EFFECT: defined outside -->
+<p:effect type="fade" for="resultPanel" widgetVar="fadeEffect" />
+
+
+        </p:outputPanel>
+    </h:form>
+
+    <!-- Optional loading block when processing -->
+    <p:blockUI block="loanDialog" widgetVar="loanDialogBlock" />
+</p:dialog>
+</div>
+</h:body>
+
+</html>
+

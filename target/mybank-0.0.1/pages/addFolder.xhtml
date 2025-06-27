@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      lang="en"
+      xml:lang="en">
+<h:head>
+    <title>Créer un Nouveau Dossier</title>
+    <style>
+        .form-panel {
+            margin-top: 20px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .section-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+            color: #3f51b5;
+        }
+        .wizard-step {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</h:head>
+
+<h:body>
+<h:form id="createFolderForm">
+    <p:panel header="🆕 Création d'un Nouveau Dossier" styleClass="form-panel">
+
+        <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />
+
+        <p:wizard showStepStatus="true" showNavBar="true" widgetVar="wizard" styleClass="custom-wizard">
+
+            <!-- STEP 1: Dossier -->
+            <p:tab id="folderInfo" title="Dossier">
+                <div class="wizard-step">
+                    <p:outputLabel value="📂 Informations du Dossier" styleClass="section-header"/>
+                    <p:panelGrid columns="2" columnClasses="label,value" styleClass="ui-fluid" cellpadding="8">
+
+                        <p:outputLabel for="ref" value="Référence du Dossier:" />
+                        <p:inputText id="ref" value="#{folderBean.reference}" required="true" />
+
+                        <p:outputLabel for="client" value="Nom du Client:" />
+                        <p:inputText id="client" value="#{folderBean.client}" required="true" />
+
+                        <p:outputLabel for="desc" value="Description:" />
+                        <p:inputTextarea id="desc" value="#{folderBean.description}" autoResize="true" rows="4" required="true" />
+
+                        <p:outputLabel for="revenu" value="Revenu Mensuel (€):" />
+                        <p:inputText id="revenu" value="#{folderBean.revenuMensuel}" required="true" />
+
+                        <p:outputLabel for="montant" value="Montant du Prêt (€):" />
+                        <p:inputText id="montant" value="#{folderBean.montantDemande}" required="true" />
+
+                        <p:outputLabel for="duree" value="Durée du Prêt (mois):" />
+                        <p:inputText id="duree" value="#{folderBean.dureeMois}" required="true" />
+
+                        <p:outputLabel for="taux" value="Taux d'Intérêt Annuel (%):" />
+                        <p:inputText id="taux" value="#{folderBean.tauxAnnuel}" required="true" />
+
+                    </p:panelGrid>
+                </div>
+            </p:tab>
+
+            <!-- STEP 2: Client Part 1 -->
+            <p:tab id="clientInfo1" title="Client (1/2)">
+                <div class="wizard-step">
+                    <p:outputLabel value="👤 Profil Client (1/2)" styleClass="section-header"/>
+                    <p:panelGrid columns="2" columnClasses="label,value" styleClass="ui-fluid" cellpadding="8">
+
+                        <p:outputLabel for="age" value="Âge:" />
+                        <p:inputText id="age" value="#{clientProfileController.clientProfile.age}" />
+
+                        <p:outputLabel for="scoreCredit" value="Score de Crédit:" />
+                        <p:inputText id="scoreCredit" value="#{clientProfileController.clientProfile.scoreCredit}" />
+
+                        <p:outputLabel for="statutEmploi" value="Statut d'Emploi:" />
+                        <p:selectOneMenu id="statutEmploi" value="#{clientProfileController.clientProfile.statutEmploi}" style="width:100%">
+                            <f:selectItem itemLabel="Sélectionner..." itemValue="" />
+                            <f:selectItem itemLabel="Employé" itemValue="Employé" />
+                            <f:selectItem itemLabel="Travailleur indépendant" itemValue="Travailleur indépendant" />
+                            <f:selectItem itemLabel="Sans emploi" itemValue="Sans emploi" />
+                        </p:selectOneMenu>
+
+                        <p:outputLabel for="statutMatrimonial" value="Statut Matrimonial:" />
+                        <p:selectOneMenu id="statutMatrimonial" value="#{clientProfileController.clientProfile.statutMatrimonial}" style="width:100%">
+                            <f:selectItem itemLabel="Sélectionner..." itemValue="" />
+                            <f:selectItem itemLabel="Marié" itemValue="Marié" />
+                            <f:selectItem itemLabel="Célibataire" itemValue="Célibataire" />
+                            <f:selectItem itemLabel="Divorcé" itemValue="Divorcé" />
+                            <f:selectItem itemLabel="Veuf" itemValue="Veuf" />
+                        </p:selectOneMenu>
+
+                        <p:outputLabel for="statutPropriete" value="Statut de Propriété:" />
+                        <p:selectOneMenu id="statutPropriete" value="#{clientProfileController.clientProfile.statutPropriete}" style="width:100%">
+                            <f:selectItem itemLabel="Sélectionner..." itemValue="" />
+                            <f:selectItem itemLabel="Propriétaire" itemValue="Propriétaire" />
+                            <f:selectItem itemLabel="Hypothèque" itemValue="Hypothèque" />
+                            <f:selectItem itemLabel="Locataire" itemValue="Locataire" />
+                            <f:selectItem itemLabel="Autre" itemValue="Autre" />
+                        </p:selectOneMenu>
+
+                    </p:panelGrid>
+                </div>
+            </p:tab>
+
+            <!-- STEP 3: Client Part 2 -->
+            <p:tab id="clientInfo2" title="Client (2/2)">
+                <div class="wizard-step">
+                    <p:outputLabel value="👤 Profil Client (2/2)" styleClass="section-header"/>
+                    <p:panelGrid columns="2" columnClasses="label,value" styleClass="ui-fluid" cellpadding="8">
+
+                        <p:outputLabel for="paiementsDette" value="Paiements Mensuels de Dettes (€):" />
+                        <p:inputText id="paiementsDette" value="#{clientProfileController.clientProfile.paiementsMensuelsDette}" />
+
+                        <p:outputLabel for="utilisationCredit" value="Utilisation Carte Crédit (%):" />
+                        <p:inputText id="utilisationCredit" value="#{clientProfileController.clientProfile.tauxUtilisationCarteCredit}" />
+
+                        <p:outputLabel for="lignesCredit" value="Nombre de Lignes de Crédit Ouvertes:" />
+                        <p:inputText id="lignesCredit" value="#{clientProfileController.clientProfile.nombreLignesCreditOuvertes}" />
+
+                        <p:outputLabel for="demandesCredit" value="Nombre de Demandes de Crédit:" />
+                        <p:inputText id="demandesCredit" value="#{clientProfileController.clientProfile.nombreDemandesCredit}" />
+
+                        <p:outputLabel for="precedentsDefautsPret" value="Précédents Défauts de Prêt:" />
+                        <p:selectOneMenu id="precedentsDefautsPret" value="#{clientProfileController.clientProfile.precedentsDefautsPret}" style="width:100%">
+                            <f:selectItem itemLabel="Non" itemValue="0" />
+                            <f:selectItem itemLabel="Oui" itemValue="1" />
+                        </p:selectOneMenu>
+
+                        <p:outputLabel for="historiqueFaillite" value="Historique de Faillite:" />
+                        <p:selectOneMenu id="historiqueFaillite" value="#{clientProfileController.clientProfile.historiqueFaillite}" style="width:100%">
+                            <f:selectItem itemLabel="Non" itemValue="0" />
+                            <f:selectItem itemLabel="Oui" itemValue="1" />
+                        </p:selectOneMenu>
+
+                        <p:outputLabel for="historiquePaiement" value="Historique de Paiement (mois):" />
+                        <p:inputText id="historiquePaiement" value="#{clientProfileController.clientProfile.historiquePaiement}" />
+
+                        <p:outputLabel for="dureeHistoriqueCredit" value="Durée Historique de Crédit (mois):" />
+                        <p:inputText id="dureeHistoriqueCredit" value="#{clientProfileController.clientProfile.dureeHistoriqueCredit}" />
+
+                        <p:outputLabel for="actifsTotaux" value="Actifs Totaux (€):" />
+                        <p:inputText id="actifsTotaux" value="#{clientProfileController.clientProfile.actifsTotaux}">
+                            <p:ajax event="blur" listener="#{clientProfileController.updateValeurNette}" update="valeurNetteLabel" />
+                        </p:inputText>
+
+                        <p:outputLabel for="passifsTotaux" value="Passifs Totaux (€):" />
+                        <p:inputText id="passifsTotaux" value="#{clientProfileController.clientProfile.passifsTotaux}">
+                            <p:ajax event="blur" listener="#{clientProfileController.updateValeurNette}" update="valeurNetteLabel" />
+                        </p:inputText>
+
+                        <p:outputLabel value="Valeur Nette (€):" />
+                        <h:outputText id="valeurNetteLabel" value="#{clientProfileController.clientProfile.valeurNette}" />
+
+                    </p:panelGrid>
+                </div>
+            </p:tab>
+
+            <!-- STEP 4: Confirmation -->
+            <p:tab id="confirmation" title="Confirmation">
+                <div class="wizard-step" style="text-align: center;">
+                    <h3>✅ Tout est prêt!</h3>
+                    <p:commandButton value="Créer Dossier" 
+                 icon="pi pi-check"
+                 action="#{folderBean.createFolderAndProfileAndDemande}" 
+                 process="@form" />
+
+                </div>
+            </p:tab>
+
+        </p:wizard>
+
+    </p:panel>
+</h:form>
+</h:body>
+</html>

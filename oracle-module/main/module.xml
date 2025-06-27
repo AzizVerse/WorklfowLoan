@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<module xmlns="urn:jboss:module:1.9" name="oracle">
+    <resources>
+        <resource-root path="ojdbc17.jar"/>
+    </resources>
+    <dependencies>
+        <module name="javax.api"/>
+    </dependencies>
+</module>

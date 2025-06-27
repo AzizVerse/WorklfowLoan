@@ -101,6 +101,30 @@ pipeline {
         }
     }
 }
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                bat 'docker build -t azizdevops12/mybank:latest .'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat '''
+                        docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                        docker push azizdevops12/mybank:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy with Docker Compose') {
+            steps {
+                echo 'Deploying containers with Docker Compose...'
+                bat 'docker-compose down && docker-compose up -d --build'
+            }
+        }
 
 
     }

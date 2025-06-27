@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      lang="en"
+      xml:lang="en">
+
+
+<h:head>
+    <title>Tableau de Bord - BTK Bank</title>
+    <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/css/dashboard.css?v=#{System.currentTimeMillis()}"/>
+
+    
+    <script>
+    function toggleAlerts() {
+        var alertBox = document.getElementById("alertBox");
+        if (alertBox.style.display === "none" || alertBox.style.display === "") {
+            alertBox.style.display = "block";
+        } else {
+            alertBox.style.display = "none";
+        }
+    }
+</script>
+<style>
+.alert-box div[style*="overflow-y: auto;"] {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f4f4f4;
+}
+
+.alert-box div[style*="overflow-y: auto;"]::-webkit-scrollbar {
+    width: 6px;
+}
+
+.alert-box div[style*="overflow-y: auto;"]::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 3px;
+}
+
+</style>
+
+
+</h:head>
+
+<h:body>
+    <div class="dashboard-container">
+        <!-- LEFT SIDEBAR NAVIGATION -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h:graphicImage name="images/work.png" styleClass="logo"/>
+                <!-- ALERT ICON -->
+                <div class="alert-icon"
+     role="button"
+     tabindex="0"
+     aria-label="View alerts"
+     onclick="toggleAlerts()"
+     onkeydown="if(event.key === 'Enter' || event.key === ' ') toggleAlerts();">
+                    🔔
+                    <span class="alert-badge">#{alertController.myAlerts.stream().filter(a -> !a.read).count()}</span>
+                </div>
+            </div>
+
+            <div class="welcome-message">
+                Bienvenue, <strong>#{userController.firstName}</strong>!
+            </div>
+
+            <!-- ALERT DROPDOWN -->
+          <h:form id="alertForm">
+    <div id="alertBox" class="alert-box" style="display: none;">
+        <div class="alert-header">
+            📣 Vos notifications
+        </div>
+
+        <p:commandButton value="Tout marquer comme lu"
+                         actionListener="#{alertController.markAlertsAsRead}"
+                         update=":alertForm"
+                         styleClass="ui-button-secondary"
+                         style="margin-bottom:10px;" />
+
+        <!-- SCROLLABLE AREA FOR ALERTS -->
+         <div style="max-height: 300px; overflow-y: auto;">
+    <ul style="list-style-type: none; padding-left: 0; margin: 0;">
+        <ui:repeat value="#{alertController.myAlerts}" var="alert">
+            <li class="alert-item" style="background-color: #{alert.read ? '#f0f0f0' : '#fff8e1'};">
+                #{alert.message}
+                <br />
+                <span style="font-size: 0.85em; color: gray;">
+                    🕒 #{alert.formattedCreatedAt}
+                </span>
+            </li>
+        </ui:repeat>
+    </ul>
+</div>
+    </div>
+</h:form>
+         
+
+
+            
+            
+<div class="nav-container">
+                <h:form>
+                    <h:commandButton value="📄 Demandes de Crédit" action="#{dashboardController.setPage('directDemande')}" styleClass="nav-btn"/>
+                    <h:commandButton value="🔄 Workflow Crédit" action="#{dashboardController.setPage('directFlow')}" styleClass="nav-btn"/>
+                </h:form>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- TOP NAVBAR -->
+            <div class="topbar">
+                <div class="left-section">
+                    <h:graphicImage name="images/agency.png" width="80px" />
+                    <div class="user-details">
+                        <h3>Agence: #{userController.agency.name}</h3>
+                        <p class="matricule">Code agence: #{userController.agency.code}</p>
+                        <p class="role">Directeur: #{userController.agency.director.firstName} #{userController.agency.director.lastName}</p>
+                        <p class="role">Responsable Succursale: #{userController.agency.responsableSuccursale.lastName} #{userController.agency.responsableSuccursale.firstName}</p>
+                    </div>
+                </div>
+                <h:graphicImage name="images/btk_logo.png" width="70px" styleClass="logo"/>
+                <div class="right-section">
+                    <div class="user-info">
+                        <h:graphicImage name="images/admin.png" width="70px" />
+                        <div class="user-details">
+                            <h3>#{userController.firstName} #{userController.lastName}</h3>
+                            <p class="matricule">Matricule: #{userController.matricule}</p>
+                            <p class="role">Rôle: #{userController.role}</p>
+                        </div>
+                        <h:form>
+                            <h:commandButton value="Déconnexion" action="#{userController.logout}" styleClass="logout-btn"/>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DYNAMIC PAGE CONTENT -->
+            <ui:include src="#{dashboardController.currentPage}" />
+        </div>
+    </div>
+</h:body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      lang="en"
+      xml:lang="en">
+
+<h:head>
+    <title>🔧 Gestion des Analystes CIC par Agence</title>
+</h:head>
+
+<h:body>
+<h2>🏢 Gestion des Analystes CIC par dossier </h2>
+
+<h:form id="agencyForm">
+    <p:dataTable value="#{agencyBean.agencies}"
+                 var="agency"
+                 selectionMode="single"
+                 selection="#{agencyBean.selectedAgency}"
+                 rowKey="#{agency.id}"
+                 paginator="true"
+                 paginatorPosition="bottom"
+                 rows="7"
+                 widgetVar="agencyTable"
+                 update="externalPanel">
+
+        <p:column headerText="Code">
+            #{agency.code}
+        </p:column>
+
+        <p:column headerText="Nom">
+            #{agency.name}
+        </p:column>
+
+        <p:column headerText="Directeur">
+            #{agency.director.firstName} #{agency.director.lastName}
+        </p:column>
+
+        <p:column headerText="Analyste CIC par défaut">
+            <h:outputText value="#{agency.CICAnalyst != null ? agency.CICAnalyst.firstName.concat(' ').concat(agency.CICAnalyst.lastName) : 'Aucun'}" />
+        </p:column>
+
+        <p:column headerText="📂 Dossiers Actifs">
+    <h:outputText value="#{agencyBean.folderCountForCICAnalyst(agency.CICAnalyst)}" />
+</p:column>
+        <!-- Dossiers Hors Agence CIC -->
+<p:column headerText="📦 Dossiers Hors Agence">
+    <h:panelGroup>
+        <h:panelGroup rendered="#{agencyBean.externalFolderCountForCIC(agency.CICAnalyst, agency) > 0}">
+            <p:commandButton value="#{agencyBean.externalFolderCountForCIC(agency.CICAnalyst, agency)} à voir"
+                             icon="pi pi-folder-open"
+                             action="#{agencyBean.loadExternalCICOrigins(agency.CICAnalyst, agency)}"
+                             update="externalPanel"
+                             title="Cliquer pour voir les dossiers CIC assignés hors agence"
+                             styleClass="ui-button-warning ui-button-flat"
+                             style="font-weight:bold;" />
+        </h:panelGroup>
+
+        <h:outputText rendered="#{agencyBean.externalFolderCountForCIC(agency.CICAnalyst, agency) == 0}"
+                      value="Aucun"
+                      style="color:gray;" />
+    </h:panelGroup>
+</p:column>
+    </p:dataTable>
+</h:form>
+
+<!-- 📋 External Folder Origin Panel -->
+<h:panelGroup id="externalPanel" layout="block" style="margin-top: 30px;">
+    <h:panelGroup rendered="#{not empty agencyBean.originAgencyNames}">
+        <p:panel header="📦 Dossiers assignés hors Agence – Origines">
+            <ui:repeat value="#{agencyBean.originAgencyNames}" var="origin">
+                <p:badge value="#{origin}" style="margin: 4px;" />
+            </ui:repeat>
+        </p:panel>
+
+        <p:panel header="📄 Détail des Dossiers externes">
+        <h:outputText value="📋 Dossiers CIC assignés à #{agencyBean.selectedAgency.CICAnalyst.firstName} #{agencyBean.selectedAgency.CICAnalyst.lastName} depuis d'autres agences" 
+              rendered="#{not empty agencyBean.externalFolders}"
+              style="font-style: italic; color: #333; margin-bottom: 10px;" />
+            <p:dataTable value="#{agencyBean.externalFolders}"
+             var="folder"
+             paginator="true"
+             rows="5"
+             paginatorPosition="bottom"
+             emptyMessage="Aucun dossier externe trouvé pour cet analyste"
+             styleClass="modern-table">
+
+
+                <p:column headerText="Référence">
+                    #{folder.reference}
+                </p:column>
+
+                <p:column headerText="Client">
+                    #{folder.client}
+                </p:column>
+
+                <p:column headerText="Créé par">
+                    #{folder.createdBy.firstName} #{folder.createdBy.lastName}
+                </p:column>
+                <p:column headerText="Analyste d'origine">
+    #{folder.createdBy.agency.CICAnalyst.firstName} #{folder.createdBy.agency.CICAnalyst.lastName}
+</p:column>
+
+                <p:column headerText="Agence d'origine">
+                    #{folder.createdBy.agency.name}
+                </p:column>
+            </p:dataTable>
+        </p:panel>
+    </h:panelGroup>
+</h:panelGroup>
+
+</h:body>
+</html>

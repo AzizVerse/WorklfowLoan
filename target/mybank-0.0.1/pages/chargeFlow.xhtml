@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      lang="en"
+      xml:lang="en">
+
+<h:head>
+    <title>Workflow Dossier</title>
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{folderBean.loadFoldersForCurrentUser}" />
+    </f:metadata>
+<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/css/Flow.css?v=#{System.currentTimeMillis()}"/>
+</h:head>
+
+<h:body>
+    <div class="content">
+        <h2>Suivi des Dossiers de Crédit 📁 </h2>
+<p style="font-size:14px; color:gray;">
+    Suivez ici les différentes étapes du traitement des dossiers de crédit, de leur création à leur validation finale.
+</p>
+
+        
+    </div>
+    
+
+    <h:form id="officerFolderForm">
+    <p:panel header=" Liste des Dossiers" styleClass="custom-panel">
+
+        <p:dataTable id="folderTable"
+                     var="folder"
+                     value="#{folderBean.myFolders}"
+                     filteredValue="#{folderBean.filteredFolders}"
+                     widgetVar="folderTableWidget"
+                     scrollable="true"
+                     scrollHeight="380"
+                     styleClass="modern-table"
+                     paginator="true"
+                     paginatorPosition="bottom"
+                     rows="5"
+                     sortBy="#{folder.createdDate}"
+             sortOrder="descending"
+                     >
+
+            <!-- Référence -->
+            <p:column headerText="Référence"
+          filterBy="#{folder.reference}"
+          filterMatchMode="contains"
+          filterable="true"
+          style="width: 20%;">
+    <f:facet name="header">
+        <span><i class="pi pi-search" style="margin-right:5px;"></i> Référence</span>
+    </f:facet>
+    <h:outputText value="#{folder.reference}" />
+</p:column>
+
+            <!-- Client avec filtre -->
+            <p:column headerText="Client"
+                      filterBy="#{folder.client}"
+                      filterMatchMode="contains"
+                      filterable="true"
+                      style="width: 15%;">
+                      <f:facet name="header">
+                    <span>
+                        <i class="pi pi-search" style="margin-right:5px;"></i>
+                        Client
+                    </span>
+                </f:facet>
+                <h:outputText value="#{folder.client}" />
+            </p:column>
+
+            <!-- Date -->
+            <p:column headerText="Date de création"
+          filterBy="#{folder.createdDate}"
+          filterMatchMode="contains"
+          filterable="true"
+          sortBy="#{folder.createdDate}"
+          style="width: 25%;">
+    <f:facet name="header">
+        <span><i class="pi pi-calendar" style="margin-right:5px;"></i> Date</span>
+    </f:facet>
+    <h:outputText value="#{folder.createdDate}" />
+</p:column>
+
+            <!-- Action -->
+            <p:column headerText="Action" style="width: 25%; text-align: center;">
+                <p:commandButton value="Voir Détail" icon="pi pi-eye"
+                                 actionListener="#{folderBean.selectFolder(folder)}"
+                                 update="officerDetailsForm officerWorkflowForm"
+                                 process="@this"
+                                 styleClass="rounded-button ui-button-info" />
+            </p:column>
+
+        </p:dataTable>
+
+        <p:commandButton value="🔄 Réinitialiser les filtres"
+                         icon="pi pi-filter-slash"
+                         type="button"
+                         onclick="PF('folderTableWidget').clearFilters();"
+                         styleClass="ui-button-secondary"
+                         style="margin-top: 15px;" />
+    </p:panel>
+</h:form>
+
+
+   <!-- Workflow Schema -->
+<h:form id="officerWorkflowForm">
+   <p:panel rendered="#{not empty folderBean.selectedFolder}">
+        <div class="workflow-line">
+
+            <!-- Étape 1: Créé par le chargé -->
+            <div class="workflow-step #{folderBean.selectedFolder.navigation eq 'CREE_PAR_CHARGE' or 
+                                         folderBean.selectedFolder.navigation eq 'REENVOYE_AU_DIRECTEUR' or 
+                                         folderBean.selectedFolder.navigation eq 'RETOURNE_AU_CHARGE' or  
+                                         folderBean.selectedFolder.navigation eq 'RETOURNE_DE_Analyste' or
+                                         folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_DIRECTEUR' or
+                                         folderBean.selectedFolder.navigation eq 'REJETE_PAR_DIRECTEUR' or
+                                         folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_ENGAGEMENT' or
+                                         folderBean.selectedFolder.navigation eq 'REJETE_PAR_ENGAGEMENT' or
+                                         folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_CIC' or
+                                         folderBean.selectedFolder.navigation eq 'REJETE_PAR_CIC' or
+                                         folderBean.selectedFolder.navigation eq 'RETOURNE_DE_AnalysteCIC'or
+                                         folderBean.selectedFolder.navigation eq 'TERMINE'
+                                         ? 'active-step' : 'inactive-step'}">
+                <i class="pi pi-user-edit workflow-icon"></i>
+                <div class="step-label">Chargé</div>
+            </div>
+
+            <!-- Étape 2: En cours chez le Directeur -->
+            <div class="workflow-step #{folderBean.selectedFolder.navigation eq 'ENVOYE_AU_DIRECTEUR' or 
+                                         folderBean.selectedFolder.navigation eq 'REENVOYE_AU_DIRECTEUR' or
+                                         folderBean.selectedFolder.navigation eq 'RETOUR_OFFRE'
+                                         ? 'active-step' : 'inactive-step'}">
+                <i class="pi pi-user workflow-icon"></i>
+                <div class="step-label">Directeur</div>
+            </div>
+            <div class="branch-container">
+            
+            <div class="workflow-step #{folderBean.selectedFolder.navigation eq 'ENVOYE_AU_SUCCURSALE'
+                                         ? 'active-step' : 'inactive-step'}">
+                <i class="pi pi-user workflow-icon"></i>
+                <div class="step-label">Succursale</div>
+            </div>
+
+           
+            <div class="workflow-step #{folderBean.selectedFolder.navigation eq 'ASSIGNE_A_ANALYSTECIC' or
+                                        folderBean.selectedFolder.navigation eq 'ENVOYE_AU_DIRECTEUR_CIC'
+                                         ? 'active-step' : 'inactive-step'}">
+                <i class="pi pi-briefcase workflow-icon"></i>
+                <div class="step-label">CIC</div>
+            </div>
+            
+             <div class="workflow-step #{folderBean.selectedFolder.navigation eq 'ASSIGNE_A_ANALYSTE' or
+                                         folderBean.selectedFolder.navigation eq 'ENVOYE_AU_RESPONSABLE_ANALYSTE' or
+                                         folderBean.selectedFolder.navigation eq 'ENVOYE_AU_DIRECTEUR_ENGAGEMENT' 
+                                         ? 'active-step' : 'inactive-step'}">
+                <i class="pi pi-briefcase workflow-icon"></i>
+                <div class="step-label">Engagemnt</div>
+            </div>
+            </div>
+            
+             
+
+            <!-- Étape 4: Statut final -->
+            <div class="workflow-step #{folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_DIRECTEUR' or 
+                                         folderBean.selectedFolder.navigation eq 'REJETE_PAR_DIRECTEUR' or
+                                         folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_ENGAGEMENT' or
+                                         folderBean.selectedFolder.navigation eq 'REJETE_PAR_ENGAGEMENT' or
+                                         folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_CIC' or
+                                         folderBean.selectedFolder.navigation eq 'REJETE_PAR_CIC' or
+                                         folderBean.selectedFolder.navigation eq 'TERMINE'
+                                         ? 'active-step' : 'inactive-step'}">
+                <i class="pi pi-check-circle workflow-icon"></i>
+                <div class="step-label">Statut Final</div>
+            </div>
+             <!-- Étape 3: Retour au Chargé -->
+            <div class="workflow-step #{folderBean.selectedFolder.navigation eq 'RETOURNE_AU_CHARGE'or 
+                                         folderBean.selectedFolder.navigation eq 'RETOURNE_DE_Analyste'or
+                                         folderBean.selectedFolder.navigation eq 'RETOURNE_DE_AnalysteCIC'or
+                                         folderBean.selectedFolder.navigation eq 'RETOUR_OFFRE' 
+                                         ? 'active-step' : 'inactive-step'}">
+                <i class="pi pi-share-alt workflow-icon"></i>
+                <div class="step-label">Retourné</div>
+            </div>
+
+        </div>
+    </p:panel>
+</h:form>
+
+   
+
+    <!-- Selected Folder Details -->
+    <h:form id="officerDetailsForm">
+    <p:panel header="Détails du Dossier" rendered="#{not empty folderBean.selectedFolder}">
+    <f:facet name="header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h:outputText value="📁 Fiche du Dossier" style="font-weight: bold; font-size: 18px;" />
+        <p:commandButton value="🗂️ Voir les détails"
+                         icon="pi pi-eye"
+                         onclick="PF('detailsDialog').show();"
+                         disabled="#{empty folderBean.selectedFolder}"
+                         styleClass="ui-button-outlined ui-button-secondary"
+                         style="margin-left: auto; font-weight: 600;" />
+    </div>
+</f:facet>
+<!-- 📋 Full Folder Details Modal -->
+<p:dialog id="detailsDialog" widgetVar="detailsDialog"
+          header="Détails du Dossier"
+          modal="true" closable="true" resizable="false"
+          width="700" style="max-height: 90vh; overflow-y: auto; border-radius:10px;">
+
+    <!-- 📂 Folder Basic Information -->
+    <h3 style="margin-top:10px;">📂 Informations Générales</h3>
+    <h:panelGrid columns="2" cellpadding="8" columnClasses="label,value" style="width:100%;">
+        <h:outputText value="📌 Référence:" styleClass="label" />
+        <h:outputText value="#{folderBean.selectedFolder.reference}" />
+
+        <h:outputText value="👤 Client:" styleClass="label" />
+        <h:outputText value="#{folderBean.selectedFolder.client}" />
+
+        <h:outputText value="📄 Description:" styleClass="label" />
+        <h:outputText value="#{folderBean.selectedFolder.description}" />
+
+        <h:outputText value="📅 Date de création:" styleClass="label" />
+        <h:outputText value="#{folderBean.selectedFolder.createdDate}" />
+
+        <h:outputText value="💰 Montant demandé:" styleClass="label" />
+        <h:outputText value="#{folderBean.selectedFolder.montantDemande} TND" />
+
+        <h:outputText value="🕒 Durée du Prêt:" styleClass="label" />
+        <h:outputText value="#{folderBean.selectedFolder.dureeMois} mois" />
+
+        <h:outputText value="📈 Revenu Mensuel:" styleClass="label" />
+        <h:outputText value="#{folderBean.selectedFolder.revenuMensuel} TND" />
+
+        <h:outputText value="📊 Taux Annuel d'Intérêt:" styleClass="label" />
+        <h:outputText value="#{folderBean.selectedFolder.tauxAnnuel} %" />
+    </h:panelGrid>
+
+    <p:separator style="margin:20px 0;" />
+
+    <!-- 👤 Client Profile Section -->
+    <h3 style="margin-top:10px;">👤 Profil du Client</h3>
+    <p:wizard showStepStatus="false" style="margin-top:10px;">
+        
+        <!-- Step 1: Personal Information -->
+        <p:tab id="step1" title="Informations Personnelles">
+            <h:panelGrid columns="2" cellpadding="8" style="width:100%;">
+                <h:outputText value="Âge :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.age}" />
+
+                <h:outputText value="Score de Crédit :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.scoreCredit}" />
+
+                <h:outputText value="Statut d'Emploi :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.statutEmploi}" />
+
+                <h:outputText value="Statut Matrimonial :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.statutMatrimonial}" />
+
+                <h:outputText value="Statut de Propriété :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.statutPropriete}" />
+            </h:panelGrid>
+        </p:tab>
+
+        <!-- Step 2: Financial Behavior -->
+        <p:tab id="step2" title="Comportement Financier">
+            <h:panelGrid columns="2" cellpadding="8" style="width:100%;">
+                <h:outputText value="Paiements Mensuels de Dettes :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.paiementsMensuelsDette} TND" />
+
+                <h:outputText value="Utilisation Carte Crédit :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.tauxUtilisationCarteCredit} %" />
+
+                <h:outputText value="Nombre de Lignes de Crédit Ouvertes :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.nombreLignesCreditOuvertes}" />
+
+                <h:outputText value="Nombre de Demandes de Crédit :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.nombreDemandesCredit}" />
+
+                <h:outputText value="Défaut de Prêt :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.precedentsDefautsPret eq 1 ? 'Oui' : 'Non'}" />
+
+                <h:outputText value="Historique de Faillite :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.historiqueFaillite eq 1 ? 'Oui' : 'Non'}" />
+
+                <h:outputText value="Historique Paiement (mois) :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.historiquePaiement}" />
+
+                <h:outputText value="Durée Historique Crédit (mois) :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.dureeHistoriqueCredit}" />
+
+                <h:outputText value="Actifs Totaux :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.actifsTotaux} TND" />
+
+                <h:outputText value="Passifs Totaux :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.passifsTotaux} TND" />
+
+                <h:outputText value="Valeur Nette :" styleClass="label" />
+                <h:outputText value="#{clientProfileController.clientProfile.valeurNette} TND" />
+            </h:panelGrid>
+        </p:tab>
+
+    </p:wizard>
+
+    <p:separator style="margin:20px 0;" />
+
+    <!-- 📊 Simulation Data Section -->
+    <h3 style="margin-top:10px;">📊 Simulation de Crédit</h3>
+    <h:panelGroup rendered="#{not empty folderBean.selectedFolder.demandeCredit}">
+        <h:panelGrid columns="2" cellpadding="8" style="width:100%;">
+            <h:outputText value="📆 Mensualité Estimée :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.demandeCredit.mensualiteEstimee} TND" />
+
+            <h:outputText value="📉 Taux d'Endettement Après :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.demandeCredit.tauxEndettement} %" />
+
+            <h:outputText value="📈 Taux d'Endettement Avant :" styleClass="label" />
+            <h:outputText value="#{folderBean.selectedFolder.demandeCredit.tauxEndettementAvant} %" />
+            <h:outputText value="#{simulationController.getAdviceForFolderSimulation()}" 
+                  rendered="#{not empty simulationController.demandeCreditBySelectedFolder}"
+                  style="display:block; font-style:italic; color:#777; margin-bottom:20px;" />
+        </h:panelGrid>
+    </h:panelGroup>
+    
+    <!-- 🔍 Résultat de l'Évaluation -->
+<h3 style="margin-top:20px;">🔍 Résultat de l'Évaluation</h3>
+
+<h:panelGroup rendered="#{not empty clientProfileController.clientProfile.pretApprouve}">
+    <h:panelGrid columns="2" cellpadding="8" style="width:100%;">
+        <h:outputText value="Décision Prêt :" styleClass="label" />
+        <h:outputText value="#{clientProfileController.clientProfile.pretApprouve ? '✅ Prêt approuvé' : '❌ Prêt refusé'}" style="font-weight:bold" />
+
+        <h:outputText value="Probabilité d'Approbation :" styleClass="label" />
+        <h:outputText value="#{clientProfileController.clientProfile.probabiliteApprobation} %" />
+
+        <h:outputText value="Score Risque :" styleClass="label" />
+        <h:outputText value="#{clientProfileController.clientProfile.scoreRisque}" />
+    </h:panelGrid>
+</h:panelGroup>
+
+<h:panelGroup rendered="#{empty clientProfileController.clientProfile.pretApprouve}">
+    <h:outputText value="Ce dossier n'a pas encore été évalué." style="color:gray;" />
+</h:panelGroup>
+    
+
+    <h:panelGroup rendered="#{empty folderBean.selectedFolder.demandeCredit}">
+        <h:outputText value="Aucune simulation enregistrée pour ce dossier." style="color:gray;" />
+    </h:panelGroup>
+
+</p:dialog>
+
+                     
+        <div class="details-flex">
+            <div class="left">
+                <h:panelGrid columns="2" cellpadding="6" columnClasses="label,value">
+                    <h:outputLabel value="Référence :" />
+                    <h:outputText value="#{folderBean.selectedFolder.reference}" />
+
+                    <h:outputLabel value="Client :" />
+                    <h:outputText value="#{folderBean.selectedFolder.client}" />
+
+                    <h:outputLabel value="Créé par :" />
+                    <h:outputText value="#{folderBean.selectedFolder.createdBy.firstName} #{folderBean.selectedFolder.createdBy.lastName}" />
+
+                    <h:outputLabel value="Statut :" />
+                    <h:outputText value="#{folderBean.selectedFolder.navigation}" />
+                </h:panelGrid>
+
+                <p:separator/>
+                
+                 <h3 style="margin-top:20px; color: #333;">📎 Pièces Jointes du Dossier</h3>
+
+<ui:repeat value="#{agencyDocumentController.documentsForSelectedFolder}" var="doc">
+    <div style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        background-color: #f9f9f9;
+        border-left: 5px solid #4CAF50;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+
+        <!-- File Info -->
+        <div style="flex-grow: 1;">
+            <i class="pi pi-file" style="color: #4CAF50; margin-right: 8px;"></i>
+            <strong>#{doc.fileName}</strong>
+            <span style="color: #888; font-size: 0.9em;"> | 📅 #{doc.uploadDate}</span>
+        </div>
+
+        <!-- Download Button -->
+        <div>
+            <p:commandLink ajax="false" immediate="true"
+                           style="text-decoration: none; color: #007bff;">
+                <p:fileDownload value="#{agencyDocumentController.download(doc)}" />
+                <i class="pi pi-download" style="margin-left: 5px;"></i> Télécharger
+            </p:commandLink>
+        </div>
+    </div>
+</ui:repeat>
+
+
+<h:outputText rendered="#{empty agencyDocumentController.documentsForSelectedFolder}"
+              value="❗Aucun document trouvé pour ce dossier."
+              style="color: #777; font-style: italic;" />
+<br/>
+
+ 
+<p:commandButton value="📤 Ajouter une pièce jointe"
+                 icon="pi pi-plus"
+                 rendered="#{folderBean.selectedFolder.navigation eq 'CREE_PAR_CHARGE' or folderBean.selectedFolder.navigation eq 'RETOURNE_AU_CHARGE' 
+                 or folderBean.selectedFolder.navigation eq 'RETOURNE_DE_Analyste' or folderBean.selectedFolder.navigation eq 'RETOURNE_DE_AnalysteCIC'}"
+                 onclick="PF('uploadDialog').show();"
+                 styleClass="my-button my-button-success"
+                 style="font-size: 14px; margin-top: 15px;  padding: 6px 8px; border-radius: 5px;" />
+           
+                <h3>💬 Historique des échanges</h3>
+
+
+<div style="max-height: 500px; width:1000px; overflow-y: auto; padding: 10px; background-color: #f1f1f1; border-radius: 10px;">
+    <ui:repeat value="#{folderBean.actionsForSelectedFolder}" var="action" varStatus="status">
+        <div style="
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #{action.user.username eq userController.currentUser.username ? '#d1e7dd' : '#ffffff'};
+            align-self: #{action.user.username eq userController.currentUser.username ? 'flex-end' : 'flex-start'};
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        ">
+            <div style="font-weight: bold; color: #333;">
+                👤 #{action.user.firstName} #{action.user.lastName} | <i>#{action.user.role}</i>
+                <span style="float: right; color: #888; font-size: 0.85em;">📅 #{action.actionDate}</span>
+            </div>
+            <div style="margin-top: 5px; color: #444;">
+                📝 #{action.comment}
+            </div>
+        </div>
+    </ui:repeat>
+</div>
+
+
+
+
+
+
+
+            </div>
+
+           <div class="right">
+    <h:panelGroup rendered="#{not empty folderBean.selectedFolder}">
+        <p:commandButton value="Envoyer au Directeur" icon="pi pi-send"
+                         rendered="#{folderBean.selectedFolder.navigation eq 'CREE_PAR_CHARGE' or folderBean.selectedFolder.navigation eq 'RETOURNE_AU_CHARGE'}"
+                         onclick="PF('commentDialog').show();"
+                         process="@this" update="officerCommentDialogForm"
+                         styleClass="my-button my-button-primary" />
+                         
+        <p:commandButton value="Renvoyer à l’Analyste"
+                 icon="pi pi-send"
+                 onclick="PF('commentToAnalystDialog').show();"
+                 process="@this" update="officerCommentToAnalystForm"
+                 rendered="#{folderBean.selectedFolder.navigation eq 'RETOURNE_DE_Analyste'}"
+                 styleClass="my-button my-button-info" />
+                 
+        <p:commandButton value="Renvoyer à l’Analyste CIC"
+                 icon="pi pi-send"
+                 onclick="PF('commentToAnalystCICDialog').show();"
+                 process="@this" update="officerCommentToAnalystCICForm"
+                 rendered="#{folderBean.selectedFolder.navigation eq 'RETOURNE_DE_AnalysteCIC'}"
+                 styleClass="my-button my-button-info" />         
+                
+                         
+
+        <p:commandButton value="Marquer comme Terminé" icon="pi pi-check"
+                         rendered="#{folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_DIRECTEUR' 
+                         or folderBean.selectedFolder.navigation eq 'REJETE_PAR_DIRECTEUR' or folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_ENGAGEMENT' or
+                                         folderBean.selectedFolder.navigation eq 'REJETE_PAR_ENGAGEMENT' or folderBean.selectedFolder.navigation eq 'APPROUVE_PAR_CIC' or
+                                         folderBean.selectedFolder.navigation eq 'REJETE_PAR_CIC'}"
+                         action="#{folderBean.markAsCompleted}"
+                         update="officerFolderForm officerDetailsForm officerWorkflowForm"
+                         styleClass="my-button my-button-success" />
+    </h:panelGroup>
+</div>
+           
+
+        </div>
+    </p:panel>
+</h:form>
+
+
+    <!-- Comment Dialog -->
+    <p:dialog header="Commentaire à transmettre" widgetVar="commentDialog" modal="true" closable="false" resizable="false">
+    <h:form id="officerCommentDialogForm">
+        <h:panelGrid columns="1" cellpadding="5" style="width: 100%;">
+            <h:outputLabel value="Votre commentaire :" />
+            <p:inputTextarea value="#{folderBean.newComment}" autoResize="true" rows="4" cols="40" required="true" />
+        </h:panelGrid>
+
+        <!-- Buttons properly inside form and styled -->
+        <div class="comment-footer" style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
+            <p:commandButton value="Envoyer" icon="pi pi-check"
+                             action="#{folderBean.sendToDirector}"
+                             oncomplete="PF('commentDialog').hide();"
+                             update="officerFolderForm officerDetailsForm officerWorkflowForm"  />
+            <p:commandButton value="Annuler" icon="pi pi-times"
+                             onclick="PF('commentDialog').hide();" type="button"
+                             styleClass="ui-button-secondary" />
+        </div>
+    </h:form>
+</p:dialog>
+<!-- Comment Dialog for Sending to Analyst -->
+<p:dialog header="Commentaire pour l'analyste"
+          widgetVar="commentToAnalystDialog"
+          modal="true" closable="false" resizable="false">
+
+    <h:form id="officerCommentToAnalystForm">
+        <h:panelGrid columns="1" cellpadding="5" style="width: 100%;">
+            <h:outputLabel value="Votre commentaire :" />
+            <p:inputTextarea value="#{folderBean.newComment}" autoResize="true" rows="4" cols="40" required="true" />
+        </h:panelGrid>
+
+        <div class="comment-footer" style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
+            <p:commandButton value="Envoyer"
+                             icon="pi pi-check"
+                             action="#{folderBean.sendToAnalystAgain}"
+                             oncomplete="PF('commentToAnalystDialog').hide();"
+                             update="officerFolderForm officerDetailsForm officerWorkflowForm" />
+
+            <p:commandButton value="Annuler"
+                             icon="pi pi-times"
+                             onclick="PF('commentToAnalystDialog').hide();" type="button"
+                             styleClass="ui-button-secondary" />
+        </div>
+    </h:form>
+</p:dialog>
+
+<!-- cic -->
+<p:dialog header="Commentaire pour l'analyste CIC"
+          widgetVar="commentToAnalystCICDialog"
+          modal="true" closable="false" resizable="false">
+
+    <h:form id="officerCommentToAnalystCICForm">
+        <h:panelGrid columns="1" cellpadding="5" style="width: 100%;">
+            <h:outputLabel value="Votre commentaire :" />
+            <p:inputTextarea value="#{folderBean.newComment}" autoResize="true" rows="4" cols="40" required="true" />
+        </h:panelGrid>
+
+        <div class="comment-footer" style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
+            <p:commandButton value="Envoyer"
+                             icon="pi pi-check"
+                             action="#{folderBean.sendToAnalystCICAgain}"
+                             oncomplete="PF('commentToAnalystCICDialog').hide();"
+                             update="officerFolderForm officerDetailsForm officerWorkflowForm" />
+
+            <p:commandButton value="Annuler"
+                             icon="pi pi-times"
+                             onclick="PF('commentToAnalystCICDialog').hide();" type="button"
+                             styleClass="ui-button-secondary" />
+        </div>
+    </h:form>
+</p:dialog>
+
+
+<!-- 🔁 POPUP Upload Dialog -->
+<p:dialog header="Ajouter une pièce jointe" widgetVar="uploadDialog" modal="true" resizable="false">
+    <h:form id="officerUploadForm" enctype="multipart/form-data">
+        <h:panelGrid columns="1" cellpadding="5">
+            <h:outputLabel for="docName" value="Nom du fichier personnalisé:"/>
+            <p:inputText id="docName" value="#{agencyDocumentController.customFileName}" required="true" />
+
+            <h:outputLabel for="fileUpload" value="Sélectionner le fichier:"/>
+            <p:fileUpload id="fileUpload"
+                          value="#{agencyDocumentController.uploadedFile}"
+                          mode="simple"
+                          skinSimple="true"
+                          required="true" />
+
+            <p:commandButton value="Ajouter"
+                             action="#{agencyDocumentController.upload}"
+                             update="officerUploadForm officerDetailsForm"
+                             oncomplete="PF('uploadDialog').hide();"
+                             icon="pi pi-check" />
+        </h:panelGrid>
+    </h:form>
+</p:dialog>
+
+</h:body>
+</html>

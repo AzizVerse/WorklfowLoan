@@ -6,7 +6,7 @@
 
   <groupId>com.mybank</groupId>
   <artifactId>mybank</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <packaging>war</packaging>
 
   <name>mybank</name>
@@ -82,6 +82,7 @@
 
 
   </dependencies>
+         
 
   <build>
     <plugins>
@@ -187,15 +188,16 @@
         </execution>
       </executions>
     </plugin>
- 
-
-
-
-
-
-
 
     </plugins>
   </build>
+ <distributionManagement>
+    <repository>
+        <id>nexus</id>
+        <url>http://localhost:8081/repository/maven-releases/</url>
+    </repository>
+</distributionManagement>
+
+
 
 </project>
