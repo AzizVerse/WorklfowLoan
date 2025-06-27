@@ -81,47 +81,47 @@ pipeline {
                 }
             }
         }
-       stage('Deploy to Nexus') {
+      stage('Deploy to Nexus') {
     steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
             script {
-                // Write settings.xml with Nexus credentials
-                writeFile file: 'settings.xml', text: """
+                // Safely write settings.xml (avoid direct interpolation of secrets)
+                def settingsXml = """
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
       <id>nexus</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
+      <username>${NEXUS_USER}</username>
+      <password>${NEXUS_PASS}</password>
     </server>
   </servers>
 </settings>
-                """
+"""
+                writeFile file: 'settings.xml', text: settingsXml
 
-                // Read current project version
+                // Get version from pom.xml
                 def version = readMavenPom().version
+                def url = "http://localhost:8081/repository/maven-releases/com/mybank/mybank/${version}/mybank-${version}.war"
 
-                // Construct the Nexus URL to check if the artifact already exists
-                def artifactUrl = "http://localhost:8081/repository/maven-releases/com/mybank/mybank/${version}/mybank-${version}.war"
-
-                // Check if the artifact exists using curl
-                def exists = bat(
-                    script: "curl -s -o NUL -w \"%{http_code}\" ${artifactUrl}",
+                // Check if artifact already exists
+                def status = bat(
+                    script: """curl -u %NEXUS_USER%:%NEXUS_PASS% -s -o NUL -w "%{http_code}" "${url}" """,
                     returnStdout: true
                 ).trim()
 
-                if (exists == "200") {
-                    echo "✅ Artifact already exists in Nexus — skipping deploy."
+                if (status == "200") {
+                    echo "✅ Artifact already exists in Nexus. Skipping deploy."
                 } else {
-                    echo "📦 Artifact not found — deploying to Nexus..."
+                    echo "📦 Artifact not found. Deploying to Nexus..."
                     bat 'mvn deploy -s settings.xml -DskipTests'
                 }
             }
         }
     }
 }
+
 
         stage('Build Docker Image') {
             steps {
