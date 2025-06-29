@@ -127,11 +127,13 @@ pipeline {
         echo 'Deploying containers with Docker Compose...'
         bat '''
         docker rm -f oracle-db || echo "oracle-db not running"
+        docker rm -f mybank-app || echo "mybank-app not running"
         docker-compose down || echo "No containers to stop"
         docker-compose up -d --build
         '''
     }
 }
+
 
 
 
