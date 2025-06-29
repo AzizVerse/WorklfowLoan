@@ -84,8 +84,7 @@ pipeline {
      stage('Deploy to Nexus') {
     steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-            script {
-                def settingsXml = """<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+            writeFile file: 'settings.xml', text: """<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
@@ -96,30 +95,11 @@ pipeline {
     </server>
   </servers>
 </settings>"""
-                writeFile file: 'settings.xml', text: settingsXml
-
-                def version = readMavenPom().version
-                def url = "http://localhost:8081/repository/maven-releases/com/mybank/mybank/${version}/mybank-${version}.war"
-
-                echo "🔍 Checking if artifact exists at: ${url}"
-
-                def status = bat(
-                    script: "curl -u %NEXUS_USER%:%NEXUS_PASS% -s -o NUL -w %%{http_code} ${url}",
-                    returnStdout: true
-                ).trim()
-
-                echo "ℹ️ HTTP status code: ${status}"
-
-                if (status == "200") {
-                    echo "✅ Artifact already exists in Nexus. Skipping deploy."
-                } else {
-                    echo "📦 Artifact not found. Deploying to Nexus..."
-                    bat 'mvn deploy -s settings.xml -DskipTests'
-                }
-            }
+            bat 'mvn deploy -s settings.xml -DskipTests'
         }
     }
 }
+
 
 
 
@@ -143,11 +123,16 @@ pipeline {
         }
 
         stage('Deploy with Docker Compose') {
-            steps {
-                echo 'Deploying containers with Docker Compose...'
-                bat 'docker-compose down && docker-compose up -d --build'
-            }
-        }
+    steps {
+        echo 'Deploying containers with Docker Compose...'
+        bat '''
+        docker rm -f oracle-db || echo "oracle-db not running"
+        docker-compose down || echo "No containers to stop"
+        docker-compose up -d --build
+        '''
+    }
+}
+
 
 
     }
