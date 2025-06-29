@@ -1,0 +1,9 @@
+startDelaySeconds: 0
+hostPort: 0
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+rules:
+  - pattern: 'java.lang<type=Memory><>(HeapMemoryUsage|NonHeapMemoryUsage)'
+  - pattern: 'java.lang<type=GarbageCollector,name=(.*)><>CollectionCount|CollectionTime'
+  - pattern: 'java.lang<type=Threading><>(.*)'
+  - pattern: 'java.lang<type=ClassLoading><>(.*)'

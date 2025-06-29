@@ -7,7 +7,7 @@ services:
       - APP_USER=system
       - APP_USER_PASSWORD=azizmarco23
     ports:
-      - "51521:1521"
+      - "15215:1521"
     networks:
       - mynet
 
@@ -18,6 +18,34 @@ services:
       - oracle-db
     ports:
       - "8085:8080"
+    networks:
+      - mynet
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - mynet
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - mynet
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
     networks:
       - mynet
 
