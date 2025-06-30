@@ -139,9 +139,10 @@ stage('Notify Monitoring') {
     steps {
         script {
             def status = currentBuild.result ?: 'SUCCESS'
-            bat """
-printf "jenkins_pipeline_status{job=\\"mybank\\",result=\\"SUCCESS\\"} 1" | curl --data-binary @- http://localhost:9091/metrics/job/jenkins-job
-"""
+           bat '''
+powershell -Command "echo 'jenkins_pipeline_status{job=\"mybank\",result=\"SUCCESS\"} 1' | Out-File -Encoding ascii -NoNewline -FilePath temp_metric.txt; Invoke-WebRequest -Uri http://localhost:9091/metrics/job/jenkins-job -Method POST -InFile temp_metric.txt -ContentType 'text/plain'"
+'''
+
 
         }
     }
