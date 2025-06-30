@@ -126,11 +126,13 @@ pipeline {
     steps {
         echo 'Deploying containers with Docker Compose...'
         bat '''
-        docker rm -f oracle-db || echo "oracle-db not running"
-        docker rm -f mybank-app || echo "mybank-app not running"
-        docker-compose down || echo "No containers to stop"
-        docker-compose up -d --build
-        '''
+for %%i in (oracle-db mybank-app prometheus node-exporter) do (
+    docker rm -f %%i || echo "%%i not running"
+)
+docker-compose down || echo "No containers to stop"
+docker-compose up -d --build
+'''
+
     }
 }
 stage('Notify Monitoring ') {
