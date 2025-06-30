@@ -140,8 +140,9 @@ stage('Notify Monitoring') {
         script {
             def status = currentBuild.result ?: 'SUCCESS'
             bat """
-            echo "jenkins_pipeline_status{job=\\"mybank\\",result=\\"${status}\\"} 1" | curl --data-binary @- http://host.docker.internal:9091/metrics/job/mybank
-            """
+echo "jenkins_pipeline_status{job=\\"mybank\\",result=\\"SUCCESS\\"} 1" | curl --data-binary @- http://localhost:9091/metrics/job/jenkins-job
+"""
+
         }
     }
 }
