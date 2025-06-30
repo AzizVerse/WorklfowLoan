@@ -138,16 +138,13 @@ docker-compose up -d --build
 stage('Notify Monitoring') {
     steps {
         script {
-            def status = currentBuild.result ?: 'SUCCESS'
-          bat '''
-powershell -Command "$metric = 'jenkins_pipeline_status{job=\\"mybank\\",result=\\"SUCCESS\\"} 1'; $metric | Out-File -Encoding ascii -NoNewline -FilePath temp_metric.txt; Invoke-WebRequest -Uri http://localhost:9091/metrics/job/jenkins-job -Method POST -InFile temp_metric.txt -ContentType 'text/plain'"
-'''
-
-
-
+            bat '''
+                powershell -Command "$metric = 'jenkins_pipeline_status{job=\\"mybank\\",result=\\"SUCCESS\\"} 1'; [System.IO.File]::WriteAllText('temp_metric.txt', $metric, [System.Text.Encoding]::ASCII); Invoke-WebRequest -Uri http://localhost:9091/metrics/job/jenkins-job -Method POST -InFile temp_metric.txt -ContentType 'text/plain'"
+            '''
         }
     }
 }
+
 
 
 
