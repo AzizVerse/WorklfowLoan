@@ -126,7 +126,7 @@ pipeline {
     steps {
         echo 'Deploying containers with Docker Compose...'
         bat '''
-for %%i in (oracle-db mybank-app prometheus node-exporter) do (
+for %%i in (oracle-db mybank-app prometheus node-exporter grafana) do (
     docker rm -f %%i || echo "%%i not running"
 )
 docker-compose down || echo "No containers to stop"
