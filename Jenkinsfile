@@ -139,11 +139,12 @@ stage('Notify Monitoring') {
     steps {
         script {
             bat '''
-                powershell -Command "$metric = 'jenkins_pipeline_status{job=\\"mybank\\",result=\\"SUCCESS\\"} 1'; [System.IO.File]::WriteAllText('temp_metric.txt', $metric, [System.Text.Encoding]::ASCII); Invoke-WebRequest -Uri http://localhost:9091/metrics/job/jenkins-job -Method POST -InFile temp_metric.txt -ContentType 'text/plain'"
+            powershell -Command "$metric = 'jenkins_pipeline_status{job=\\"mybank\\",result=\\"SUCCESS\\"} 1`n'; [System.IO.File]::WriteAllText('metric.txt', $metric, (New-Object System.Text.UTF8Encoding $false)); Invoke-WebRequest -Uri http://localhost:9091/metrics/job/jenkins-job -Method POST -InFile metric.txt -ContentType 'text/plain'"
             '''
         }
     }
 }
+
 
 
 
