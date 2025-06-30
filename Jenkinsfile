@@ -135,18 +135,17 @@ docker-compose up -d --build
 
     }
 }
-stage('Notify Monitoring ') {
+stage('Notify Monitoring') {
     steps {
         script {
             def status = currentBuild.result ?: 'SUCCESS'
             bat """
-            curl -X POST http://host.docker.internal:9090/metrics \
-                 -H "Content-Type: text/plain" \
-                 --data "jenkins_pipeline_status{job='mybank', result='${status}'} 1"
+            echo "jenkins_pipeline_status{job=\\"mybank\\",result=\\"${status}\\"} 1" | curl --data-binary @- http://host.docker.internal:9091/metrics/job/mybank
             """
         }
     }
 }
+
 
 
 
