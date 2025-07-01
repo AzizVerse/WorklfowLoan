@@ -151,20 +151,60 @@ stage('Notify Monitoring') {
     }
 
      post {
-        always {
-            echo 'Archiving reports and results...'
+    always {
+        echo 'Archiving reports and results...'
 
-            // Java reports
-            junit '**/target/surefire-reports/*.xml'
-            archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
-            archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
-            archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
+        // Java reports
+        junit '**/target/surefire-reports/*.xml'
+        archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
+        archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
+        archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
 
-            // OWASP security report
-            archiveArtifacts artifacts: '**/target/dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
+        // OWASP security report
+        archiveArtifacts artifacts: '**/target/dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
 
-            // Python reports
-            archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
-        }
+        // Python reports
+        archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
+    }
+
+    success {
+        emailext(
+            to: 'benmahmoud0499@gmail.com',
+            subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """🎉 Good news!
+
+The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} has completed **successfully**.
+
+Check the results here: ${env.BUILD_URL}
+"""
+        )
+    }
+
+    failure {
+        emailext(
+            to: 'benmahmoud0499@gmail.com',
+            subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """⚠️ Oops!
+
+The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} has **failed**.
+
+Check the console output for details:
+${env.BUILD_URL}
+"""
+        )
+    }
+
+    unstable {
+        emailext(
+            to: 'benmahmoud0499@gmail.com',
+            subject: "⚠️ UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """Heads up!
+
+The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} is **unstable** (e.g. test failures).
+
+Details: ${env.BUILD_URL}
+"""
+        )
     }
 }
+
