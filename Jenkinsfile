@@ -151,7 +151,7 @@ docker-compose up -d --build
             archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
-            archiveArtifacts artifacts: '**/target/dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/target/dependency-check-report.html', allowEmptyArchive: true
             archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
         }
 
