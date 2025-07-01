@@ -6,7 +6,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout Repos') {
             steps {
                 echo 'Cloning Java EE Backend and Python API...'
@@ -55,13 +54,12 @@ pipeline {
                 dir('loan-ml-api') {
                     echo 'Installing dependencies & running Python linting + tests...'
                     bat '''
-    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install --upgrade pip
-    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install -r requirements.txt
-    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install flake8 pytest pytest-cov
-    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m flake8 main.py loan.py test_main.py
-    "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest --cov=. --cov-report=html
-'''
-
+                        "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install --upgrade pip
+                        "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install -r requirements.txt
+                        "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install flake8 pytest pytest-cov
+                        "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m flake8 main.py loan.py test_main.py
+                        "C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest --cov=. --cov-report=html
+                    '''
                 }
             }
         }
@@ -81,10 +79,11 @@ pipeline {
                 }
             }
         }
-     stage('Deploy to Nexus') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-            writeFile file: 'settings.xml', text: """<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+
+        stage('Deploy to Nexus') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                    writeFile file: 'settings.xml', text: """<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
@@ -95,14 +94,10 @@ pipeline {
     </server>
   </servers>
 </settings>"""
-            bat 'mvn deploy -s settings.xml -DskipTests'
+                    bat 'mvn deploy -s settings.xml -DskipTests'
+                }
+            }
         }
-    }
-}
-
-
-
-
 
         stage('Build Docker Image') {
             steps {
@@ -123,88 +118,81 @@ pipeline {
         }
 
         stage('Deploy with Docker Compose') {
-    steps {
-        echo 'Deploying containers with Docker Compose...'
-        bat '''
+            steps {
+                echo 'Deploying containers with Docker Compose...'
+                bat '''
 for %%i in (oracle-db mybank-app prometheus node-exporter grafana) do (
     docker rm -f %%i || echo "%%i not running"
 )
 docker-compose down || echo "No containers to stop"
 docker-compose up -d --build
-'''
+                '''
+            }
+        }
 
-    }
-}
-stage('Notify Monitoring') {
-    steps {
-        script {
-            bat '''
-            @echo off
-            (echo jenkins_pipeline_status{job="mybank",result="SUCCESS"} 1.0) > metric.txt
-            curl --data-binary @metric.txt http://localhost:9091/metrics/job/jenkins-job
-            '''
+        stage('Notify Monitoring') {
+            steps {
+                script {
+                    bat '''
+                        @echo off
+                        (echo jenkins_pipeline_status{job="mybank",result="SUCCESS"} 1.0) > metric.txt
+                        curl --data-binary @metric.txt http://localhost:9091/metrics/job/jenkins-job
+                    '''
+                }
+            }
         }
     }
-}
 
+    post {
+        always {
+            echo 'Archiving reports and results...'
 
-    }
+            junit '**/target/surefire-reports/*.xml'
+            archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/target/dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
+        }
 
-     post {
-    always {
-        echo 'Archiving reports and results...'
-
-        // Java reports
-        junit '**/target/surefire-reports/*.xml'
-        archiveArtifacts artifacts: '**/target/site/jacoco/index.html', allowEmptyArchive: true
-        archiveArtifacts artifacts: '**/target/site/checkstyle.html', allowEmptyArchive: true
-        archiveArtifacts artifacts: '**/target/site/pmd.html', allowEmptyArchive: true
-
-        // OWASP security report
-        archiveArtifacts artifacts: '**/target/dependency-check-report/dependency-check-report.html', allowEmptyArchive: true
-
-        // Python reports
-        archiveArtifacts artifacts: 'loan-ml-api/htmlcov/**', allowEmptyArchive: true
-    }
-
-    success {
-        emailext(
-            to: 'benmahmoud0499@gmail.com',
-            subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """🎉 Good news!
+        success {
+            emailext(
+                to: 'benmahmoud0499@gmail.com',
+                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """🎉 Good news!
 
 The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} has completed **successfully**.
 
 Check the results here: ${env.BUILD_URL}
 """
-        )
-    }
+            )
+        }
 
-    failure {
-        emailext(
-            to: 'benmahmoud0499@gmail.com',
-            subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """⚠️ Oops!
+        failure {
+            emailext(
+                to: 'benmahmoud0499@gmail.com',
+                subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """⚠️ Oops!
 
 The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} has **failed**.
 
 Check the console output for details:
 ${env.BUILD_URL}
 """
-        )
-    }
+            )
+        }
 
-    unstable {
-        emailext(
-            to: 'benmahmoud0499@gmail.com',
-            subject: "⚠️ UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """Heads up!
+        unstable {
+            emailext(
+                to: 'benmahmoud0499@gmail.com',
+                subject: "⚠️ UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """Heads up!
 
 The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} is **unstable** (e.g. test failures).
 
 Details: ${env.BUILD_URL}
 """
-        )
+            )
+        }
     }
 }
-
