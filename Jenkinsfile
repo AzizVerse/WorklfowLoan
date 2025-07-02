@@ -181,7 +181,7 @@ Check the console output for details:
 ${env.BUILD_URL}
 """,
                  attachmentsPattern: '**/target/site/checkstyle.html,**/target/site/pmd.html,**/target/dependency-check-report.html'
-        )
+        
             )
         }
 
@@ -196,7 +196,7 @@ The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} is **unstable** (e.g. 
 Details: ${env.BUILD_URL}
 """,
                  attachmentsPattern: '**/target/site/checkstyle.html,**/target/site/pmd.html,**/target/dependency-check-report.html'
-        )
+        
             )
         }
     }
