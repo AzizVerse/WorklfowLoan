@@ -164,7 +164,8 @@ docker-compose up -d --build
 The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} has completed **successfully**.
 
 Check the results here: ${env.BUILD_URL}
-"""
+""",
+                attachmentsPattern: '**/target/site/jacoco/index.html,**/target/site/checkstyle.html,**/target/site/pmd.html,**/target/dependency-check-report.html,loan-ml-api/htmlcov/index.html'
             )
         }
 
@@ -178,7 +179,9 @@ The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} has **failed**.
 
 Check the console output for details:
 ${env.BUILD_URL}
-"""
+""",
+                 attachmentsPattern: '**/target/site/checkstyle.html,**/target/site/pmd.html,**/target/dependency-check-report.html'
+        )
             )
         }
 
@@ -191,7 +194,9 @@ ${env.BUILD_URL}
 The pipeline *${env.JOB_NAME}* build #${env.BUILD_NUMBER} is **unstable** (e.g. test failures).
 
 Details: ${env.BUILD_URL}
-"""
+""",
+                 attachmentsPattern: '**/target/site/checkstyle.html,**/target/site/pmd.html,**/target/dependency-check-report.html'
+        )
             )
         }
     }
