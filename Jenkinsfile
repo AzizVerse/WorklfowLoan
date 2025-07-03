@@ -130,17 +130,7 @@ docker-compose up -d --build
             }
         }
 
-        stage('Notify Monitoring') {
-            steps {
-                script {
-                    bat '''
-                        @echo off
-                        (echo jenkins_pipeline_status{job="mybank",result="SUCCESS"} 1.0) > metric.txt
-                        curl --data-binary @metric.txt http://localhost:9091/metrics/job/jenkins-job
-                    '''
-                }
-            }
-        }
+        
     }
 
     post {
